@@ -783,7 +783,7 @@ system, "rm -rf temp/dynaptune";
 system, "rm -rf temp/footprint";
 write,table=dynap,file="temp/dynap";
 write,table=dynaptune,file="temp/dynaptune";
-!#! system,"/afs/cern.ch/group/si/slap/bin/foot < temp/dynaptune > temp/footprint";
+system,"/afs/cern.ch/work/f/frs/public/slap/bin/foot < temp/dynaptune > temp/footprint";
 !system,"foot < temp/dynaptune > temp/footprint";
 
 !/*
