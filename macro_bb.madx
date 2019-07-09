@@ -7,6 +7,7 @@
 ! D. Pellegrini: added macros to print the lenses in the sixtrack expert format, May 2017
 ! D. Pellegrini: added macros to remove BB lenses to simulate beams such as 8b4e, Set 2017
 
+! Beambeam tags in for mad elements
 beambeam4d = 4;
 beambeam6d = 6;
 beambeam6dip = 60;
@@ -42,7 +43,7 @@ option,-echo, -info ;assign, echo=temp/sliceho.res;
 value,nho_IR1,nho_IR2,nho_IR5,nho_IR8;
 assign,echo=terminal ;
 system,"awk  '{print $3}'  temp/sliceho.res >  temp/sliceho.input";
-system,"./headonslice";
+system,"/afs/cern.ch/user/g/giadarol/public/beambeam_macros/headonslice";
 
 call,file="temp/sliceho.madx";
 
