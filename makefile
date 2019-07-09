@@ -1,4 +1,4 @@
 %: %.f
-	gfortran -static -m32 -O3 -o $@ $<
+	gfortran -static -O3 -o $@ $<
 
 all: fillfoottable headonslice
