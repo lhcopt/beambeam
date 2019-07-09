@@ -5,6 +5,12 @@
 ! S. Fartoukh feature corrected for twisscrab table creation (checking that all IP knob are off), July 2016
 ! D. Pellegrini: reverted to full path for the foot command, 15 July 2016
 ! D. Pellegrini: added macros to print the lenses in the sixtrack expert format, May 2017
+! D. Pellegrini: added macros to remove BB lenses to simulate beams such as 8b4e, Set 2017
+
+beambeam4d = 4;
+beambeam6d = 6;
+beambeam6dip = 60;
+
 
 DEFINE_BB_PARAM : macro =
 {
@@ -36,7 +42,7 @@ option,-echo, -info ;assign, echo=temp/sliceho.res;
 value,nho_IR1,nho_IR2,nho_IR5,nho_IR8;
 assign,echo=terminal ;
 system,"awk  '{print $3}'  temp/sliceho.res >  temp/sliceho.input";
-system,"slhc/beambeam/headonslice";
+system,"./headonslice";
 
 call,file="temp/sliceho.madx";
 
@@ -257,7 +263,7 @@ readmytable,file="temp/twiss.tfs",table=twissb2;
  use,sequence=lhcb2;twiss;corbitmax2=table(summ,xcomax)^2+table(summ,ycomax)^2;
  if(corbitmax2>1.d-15) {print,text="crossing bump not off for b2 when calculating CC effect in bbmacro"; stop;};
  
- z_crab=0.075;
+ on_crab1:=fraction_crab*on0_x1;on_crab5:=fraction_crab*on0_x5;z_crab=0.075;
  select,flag=twiss,clear;
  select,flag=twiss,class=bbmarker,column=name,s,x,y,betx,bety,sig11,sig12,sig22,sig33,sig34,sig44,sig13,sig14,sig23,sig24;
  use,sequence=lhcb1;twiss,file="temp/twiss.tfs";
@@ -272,26 +278,26 @@ readmytable,file="temp/twiss.tfs",table=twissb2;
  on_oh1=on0_oh1;on_oh2=on0_oh2;on_oh5=on0_oh5;on_oh8=on0_oh8;
  on_ov1=on0_ov1;on_ov2=on0_ov2;on_ov5=on0_ov5;on_ov8=on0_ov8;
 
- z_crab=0;
+ on_crab1:=0;on_crab5:=0;z_crab=0;
 
 !! Define head on BB lens for beam1/2
 
-exec define_BB_lens(ho,1,0,hocharge_IR1);
-n=1;while(n<=(nho_IR1/2)) {exec define_BB_lens(ho.L,1,$n,hocharge_IR1);exec define_BB_lens(ho.R,1,$n,hocharge_IR1);n=n+1;};
-exec define_BB_lens(ho,2,0,hocharge_IR2);
-n=1;while(n<=(nho_IR2/2)) {exec define_BB_lens(ho.L,2,$n,hocharge_IR2);exec define_BB_lens(ho.R,2,$n,hocharge_IR2);n=n+1;};
-exec define_BB_lens(ho,5,0,hocharge_IR5);
-n=1;while(n<=(nho_IR5/2)) {exec define_BB_lens(ho.L,5,$n,hocharge_IR5);exec define_BB_lens(ho.R,5,$n,hocharge_IR5);n=n+1;};
-exec define_BB_lens(ho,8,0,hocharge_IR8);
-n=1;while(n<=(nho_IR8/2)) {exec define_BB_lens(ho.L,8,$n,hocharge_IR8);exec define_BB_lens(ho.R,8,$n,hocharge_IR8);n=n+1;};
+exec define_BB_lens(ho,1,0,hocharge_IR1,beambeam6dip);
+n=1;while(n<=(nho_IR1/2)) {exec define_BB_lens(ho.L,1,$n,hocharge_IR1,beambeam6d);exec define_BB_lens(ho.R,1,$n,hocharge_IR1,beambeam6d);n=n+1;};
+exec define_BB_lens(ho,2,0,hocharge_IR2,beambeam6dip);
+n=1;while(n<=(nho_IR2/2)) {exec define_BB_lens(ho.L,2,$n,hocharge_IR2,beambeam6d);exec define_BB_lens(ho.R,2,$n,hocharge_IR2,beambeam6d);n=n+1;};
+exec define_BB_lens(ho,5,0,hocharge_IR5,beambeam6dip);
+n=1;while(n<=(nho_IR5/2)) {exec define_BB_lens(ho.L,5,$n,hocharge_IR5,beambeam6d);exec define_BB_lens(ho.R,5,$n,hocharge_IR5,beambeam6d);n=n+1;};
+exec define_BB_lens(ho,8,0,hocharge_IR8,beambeam6dip);
+n=1;while(n<=(nho_IR8/2)) {exec define_BB_lens(ho.L,8,$n,hocharge_IR8,beambeam6d);exec define_BB_lens(ho.R,8,$n,hocharge_IR8,beambeam6d);n=n+1;};
 
 !! Define parasitic BB lens for beam1/2
 
 n=1; while ( n <= nparasitic ) {
-exec define_BB_lens(par.L,1,$n,lr_charge);exec define_BB_lens(par.R,1,$n,lr_charge); if (abs(x_su) < 1.e-12) {npara0_1 = n;};
-exec define_BB_lens(par.L,2,$n,lr_charge);exec define_BB_lens(par.R,2,$n,lr_charge); if (abs(x_su) < 1.e-12) {npara0_2 = n;};
-exec define_BB_lens(par.L,5,$n,lr_charge);exec define_BB_lens(par.R,5,$n,lr_charge); if (abs(x_su) < 1.e-12) {npara0_5 = n;};
-exec define_BB_lens(par.L,8,$n,lr_charge);exec define_BB_lens(par.R,8,$n,lr_charge); if (abs(x_su) < 1.e-12) {npara0_8 = n;};
+exec define_BB_lens(par.L,1,$n,lr_charge,beambeam4d);exec define_BB_lens(par.R,1,$n,lr_charge,beambeam4d); if (abs(x_su) < 1.e-12) {npara0_1 = n;};
+exec define_BB_lens(par.L,2,$n,lr_charge,beambeam4d);exec define_BB_lens(par.R,2,$n,lr_charge,beambeam4d); if (abs(x_su) < 1.e-12) {npara0_2 = n;};
+exec define_BB_lens(par.L,5,$n,lr_charge,beambeam4d);exec define_BB_lens(par.R,5,$n,lr_charge,beambeam4d); if (abs(x_su) < 1.e-12) {npara0_5 = n;};
+exec define_BB_lens(par.L,8,$n,lr_charge,beambeam4d);exec define_BB_lens(par.R,8,$n,lr_charge,beambeam4d); if (abs(x_su) < 1.e-12) {npara0_8 = n;};
 n=n+1;};
 
 system,"echo 'Number of parasitic encounter before D1'";
@@ -299,7 +305,7 @@ value,npara0_1,npara0_2,npara0_5,npara0_8;
 
 };
 
-DEFINE_BB_LENS(label,NIR,nn,flag) : macro =
+DEFINE_BB_LENS(label,NIR,nn,flag,bbcomm) : macro =
 {
 
 anorm_crab=sin(twopi*HRF400/LHCLENGTH*0.075);
@@ -336,11 +342,13 @@ bb_labelNIRb1_nn : beambeam, sigx   = sigx_labelNIRb1_nn, sigy    = sigy_labelNI
                              xma    = posx_labelNIRb1_nn + posx_labelNIRb1_crab_nn,
 			     yma    = posy_labelNIRb1_nn + posy_labelNIRb1_crab_nn,
 		             charge:= flag * ON_BB_CHARGE;
+bb_labelNIRb1_nn, slot_id = bbcomm;
 
 bb_labelNIRb2_nn : beambeam, sigx   = sigx_labelNIRb2_nn, sigy    = sigy_labelNIRb2_nn,
                              xma    = posx_labelNIRb2_nn + posx_labelNIRb2_crab_nn,
 			     yma    = posy_labelNIRb2_nn + posy_labelNIRb2_crab_nn,
 		             charge:= flag * ON_BB_CHARGE;
+bb_labelNIRb2_nn, slot_id =  bbcomm;
 };
 
 PRINT_BB_LENSES: macro = {
@@ -428,8 +436,20 @@ PRINT_LENS6D(label,NIR,nn,flag) : macro = {
   dlt_py=py_labelNIRb1_nn-py_labelNIRb2_nn;
 
   xang_labelNIR_nn=0.5*sqrt(dlt_px^2 + dlt_py^2);
-  if (dlt_px == 0.) { xplane_labelNIR_nn = pi/2; }
-  else { xplane_labelNIR_nn = atan((dlt_py)/(dlt_px)); }
+  if (xang_labelNIR_nn < 1e-20){alpha = 0.;}
+  else{
+    if(abs(dlt_px)>=abs(dlt_py)){
+      xplane_labelNIR_nn = atan((dlt_py)/(dlt_px));
+      if (dlt_px < 0){xang_labelNIR_nn = -xang_labelNIR_nn;}
+      }
+    else{
+      xplane_labelNIR_nn = abs(dlt_py)/dlt_py * (pi/2 - abs(atan((dlt_px)/(dlt_py))));
+      if (dlt_py < 0){xang_labelNIR_nn = -xang_labelNIR_nn;}
+      }
+  }
+
+  !if (dlt_px == 0.) { xplane_labelNIR_nn = pi/2; }
+  !else { xplane_labelNIR_nn = atan((dlt_py)/(dlt_px)); }
 
   printf, TEXT="bb_labelnirb1_nn 1 %F %F %F %F", value= xang_labelNIR_nn, xplane_labelNIR_nn, -ox_labelNIRb2_nn, -oy_labelNIRb2_nn;
   printf, TEXT="%F %F %F %F %F", value=
@@ -554,6 +574,43 @@ endedit;
 option,-warn,-info;
 
 };
+
+SELECT_BB_LENS(label,nn) : macro = {
+  select,flag=seqedit,pattern="^label_nn$";
+  print, text="label_nn selected";
+};
+
+REMOVE_BB_LENS_FILL_SCHEME : macro(BIM, NIR, BUNCHES, EMPTY, POS) = {
+  printf, text="Removing long ranges for %gb%ge, considering bunch %g in the train", value = BUNCHES, EMPTY, POS; 
+  seqedit,sequence=lhcbBIM;
+  select,flag=seqedit,clear;
+  //right
+  n = BUNCHES-POS+1;
+  while ( n <= npara_NIR) {
+    m = 0;
+    while (n <= npara_NIR && m < EMPTY) {
+      exec, SELECT_BB_LENS(bb_par.rNIRbBIM,$n);
+      n=n+1;
+      m=m+1;
+    }
+    n=n+BUNCHES;
+  };
+  //left
+  n = POS;
+  while ( n <= npara_NIR) {
+    m = 0;
+    while (n <= npara_NIR && m < EMPTY) {
+      exec, SELECT_BB_LENS(bb_par.lNIRbBIM,$n);
+      n=n+1;
+      m=m+1;
+    }
+    n=n+BUNCHES;
+  };
+  remove,element=SELECTED;
+  endedit;
+  print, text="Selected long ranges removed"; 
+};
+
 
 PLOT_BB_SEP(NIR,nn) : macro ={
 
@@ -726,7 +783,7 @@ system, "rm -rf temp/dynaptune";
 system, "rm -rf temp/footprint";
 write,table=dynap,file="temp/dynap";
 write,table=dynaptune,file="temp/dynaptune";
-system,"/afs/cern.ch/group/si/slap/bin/foot < temp/dynaptune > temp/footprint";
+!#! system,"/afs/cern.ch/group/si/slap/bin/foot < temp/dynaptune > temp/footprint";
 !system,"foot < temp/dynaptune > temp/footprint";
 
 !/*
