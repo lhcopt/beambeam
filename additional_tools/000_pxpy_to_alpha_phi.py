@@ -2,63 +2,61 @@ import numpy as np
 
 def find_alpha_and_phi(dpx, dpy):
 
-    phi = np.sqrt(dpx ** 2 + dpy ** 2) / 2.0
+    absphi = np.sqrt(dpx ** 2 + dpy ** 2) / 2.0
 
-    if dpy>=0.:
-        if dpx>=0:
-            # First quadrant
-            if np.abs(dpx) >= np.abs(dpy):
-                # First octant
-                alpha = 1.
-            else:
-                # Second octant
-                alpha = 2.
-        else: #dpx<0
-            # Second quadrant
-            if np.abs(dpx) <  np.abs(dpy):
-                # Third octant
-                alpha = 3.
-            else:
-                # Forth  octant
-                alpha = 4.
-    else: #dpy<0
-        if dpx<=0:
-            # Third quadrant
-            if np.abs(dpx) >= np.abs(dpy):
-                # Fifth octant
-                alpha = 5.
-            else:
-                # Sixth octant
-                alpha = 6.
-        else: #dpx>0
-            # Forth quadrant
-            if np.abs(dpx) <= np.abs(dpy):
-                # Seventh octant
-                alpha = 7.
-            else:
-                # Eighth octant
-                alpha = 8.
-
-#     if phi < 1e-20:
-#         alpha = 0.0
-# 
-# 
-#     elif np.abs(dpx) >= np.abs(dpy):
-#         alpha = np.arctan(dpy / dpx)
-#         if dpx < 0:
-#             phi = -phi
-#     else:
-#         alpha = np.sign(dpy) * (np.pi / 2 - np.abs(np.arctan(dpx / dpy)))
-#         if dpy < 0:
-#             phi = -phi
+    if absphi < 1e-20:
+        phi = absphi
+        alpha = 0.0
+    else:
+        if dpy>=0.:
+            if dpx>=0:
+                # First quadrant
+                if np.abs(dpx) >= np.abs(dpy):
+                    # First octant
+                    phi = absphi
+                    alpha = np.arctan(dpy/dpx)
+                else:
+                    # Second octant
+                    phi = absphi
+                    alpha = 0.5*np.pi - np.arctan(dpx/dpy)
+            else: #dpx<0
+                # Second quadrant
+                if np.abs(dpx) <  np.abs(dpy):
+                    # Third octant
+                    phi = absphi
+                    alpha = 0.5*np.pi - np.arctan(dpx/dpy)
+                else:
+                    # Forth  octant
+                    phi = -absphi
+                    alpha = np.arctan(dpy/dpx)
+        else: #dpy<0
+            if dpx<=0:
+                # Third quadrant
+                if np.abs(dpx) >= np.abs(dpy):
+                    # Fifth octant
+                    phi = -absphi
+                    alpha = np.arctan(dpy/dpx)
+                else:
+                    # Sixth octant
+                    phi = -absphi
+                    alpha = 0.5*np.pi - np.arctan(dpx/dpy)
+            else: #dpx>0
+                # Forth quadrant
+                if np.abs(dpx) <= np.abs(dpy):
+                    # Seventh octant
+                    phi = -absphi
+                    alpha = 0.5*np.pi - np.arctan(dpx/dpy)
+                else:
+                    # Eighth octant
+                    phi = absphi
+                    alpha = np.arctan(dpy/dpx)
 
     return alpha, phi
 
 
 
 
-
-XX, YY = meshgrid(linspace(-1., 1, 100), linspace(-1, 1, 101))
+XX, YY = np.meshgrid(np.linspace(-1., 1, 100), np.linspace(-1, 1, 101))
 AA, PP = np.vectorize(find_alpha_and_phi)(XX, YY)
 
 import matplotlib.pyplot as plt
@@ -66,7 +64,14 @@ plt.close('all')
 
 fig1 = plt.figure(1)
 ax1 = fig1.add_subplot(111)
-ax1.pcolormesh(XX, YY, AA)
-plt.colorbar()
+mpbl = ax1.pcolormesh(XX, YY, AA)
+plt.colorbar(mpbl)
+fig2.suptitle('alpha')
+
+fig2 = plt.figure(2)
+ax2 = fig2.add_subplot(111)
+mpbl = ax2.pcolormesh(XX, YY, np.sign(PP))
+plt.colorbar(mpbl)
+fig2.suptitle('sign(phi)')
 
 plt.show()
