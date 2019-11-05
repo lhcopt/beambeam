@@ -67,7 +67,16 @@ def find_alpha_and_phi_MADX(deltax,deltay):
 
     return madx.eval('xplane_labelNIR_nn'),madx.eval('xang_labelNIR_nn')
 
+test_cases = [
+    (2*160e-6, 0),
+    (0, 2*160e-6),
+    (0, -2*160e-6),
+    (-2*160e-6, 0),
+    (0, 0),
+    ]
 
+for cc in test_cases:
+    print(f'dpx, dpy: {repr(cc)} --> alpha, phi: {find_alpha_and_phi_MADX(*cc)}')
 
 XX, YY = np.meshgrid(np.linspace(-1., 1, 100), np.linspace(-1, 1, 101))
 AA, PP = np.vectorize(find_alpha_and_phi_MADX)(XX, YY)
