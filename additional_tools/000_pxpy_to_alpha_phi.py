@@ -66,7 +66,7 @@ fig1 = plt.figure(1)
 ax1 = fig1.add_subplot(111)
 mpbl = ax1.pcolormesh(XX, YY, AA)
 plt.colorbar(mpbl)
-fig2.suptitle('alpha')
+fig1.suptitle('alpha')
 
 fig2 = plt.figure(2)
 ax2 = fig2.add_subplot(111)
