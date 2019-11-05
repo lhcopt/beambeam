@@ -436,18 +436,56 @@ PRINT_LENS6D(label,NIR,nn,flag) : macro = {
   dlt_px=px_labelNIRb1_nn-px_labelNIRb2_nn;
   dlt_py=py_labelNIRb1_nn-py_labelNIRb2_nn;
 
-  xang_labelNIR_nn=0.5*sqrt(dlt_px^2 + dlt_py^2);
-  if (xang_labelNIR_nn < 1e-20){alpha = 0.;}
-  else{
-    if(abs(dlt_px)>=abs(dlt_py)){
-      xplane_labelNIR_nn = atan((dlt_py)/(dlt_px));
-      if (dlt_px < 0){xang_labelNIR_nn = -xang_labelNIR_nn;}
+! Compute crossing angle and crossing plane
+  bbbmacros_absphi = sqrt(dlt_px^2 + dlt_py^2) / 2.0;
+  if (bbbmacros_absphi < 1e-20)
+      {xang_labelNIR_nn = bbbmacros_absphi;xplane_labelNIR_nn = 0.0;}
+  else
+      {if (dlt_py>=0)
+          {if (dlt_px>=0) ! First QUADRANT
+              {if (abs(dlt_px) >= abs(dlt_py)) ! First OCTANT
+                  {xang_labelNIR_nn=bbbmacros_absphi;
+                   xplane_labelNIR_nn = atan(dlt_py/dlt_px);}
+              else                             ! Second OCTANT
+                  {
+                   xang_labelNIR_nn=bbbmacros_absphi;
+                   xplane_labelNIR_nn = 0.5*pi - atan(dlt_px/dlt_py);}
+              }
+          else !dlt_px<0  ! Second QUADRANT
+              {if (abs(dlt_px) < abs(dlt_py))  ! Third OCTANT
+                  {
+                   xang_labelNIR_nn=bbbmacros_absphi;
+                   xplane_labelNIR_nn = 0.5*pi - atan(dlt_px/dlt_py);}
+              else                             ! Fourth OCTANT
+                  {
+                   xang_labelNIR_nn=-bbbmacros_absphi;
+                   xplane_labelNIR_nn = atan(dlt_py/dlt_px);}
+              }
+          }
+      else !dlt_py<0
+          {if (dlt_px<=0) ! Third QUADRANT
+              {if (abs(dlt_px) >= abs(dlt_py)) ! Fifth OCTANT
+                  {
+                   xang_labelNIR_nn=-bbbmacros_absphi;
+                   xplane_labelNIR_nn = atan(dlt_py/dlt_px);}
+              else                             ! Sixth OCTANT
+                  {
+                   xang_labelNIR_nn=-bbbmacros_absphi;
+                   xplane_labelNIR_nn = 0.5*pi - atan(dlt_px/dlt_py);}
+              }
+          else !dlt_px>0  ! Fourth QUADRANT
+              {if (abs(dlt_px) < abs(dlt_py))  ! Seventh OCTANT
+                  {
+                   xang_labelNIR_nn=-bbbmacros_absphi;
+                   xplane_labelNIR_nn = 0.5*pi - atan(dlt_px/dlt_py);}
+              else                             ! Eighth  OCTANT
+                  {
+                   xang_labelNIR_nn=bbbmacros_absphi;
+                   xplane_labelNIR_nn = atan(dlt_py/dlt_px);}
+              }
+          }
       }
-    else{
-      xplane_labelNIR_nn = abs(dlt_py)/dlt_py * (pi/2 - abs(atan((dlt_px)/(dlt_py))));
-      if (dlt_py < 0){xang_labelNIR_nn = -xang_labelNIR_nn;}
-      }
-  }
+
 
   !if (dlt_px == 0.) { xplane_labelNIR_nn = pi/2; }
   !else { xplane_labelNIR_nn = atan((dlt_py)/(dlt_px)); }
