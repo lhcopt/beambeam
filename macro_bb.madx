@@ -43,7 +43,7 @@ option,-echo, -info ;assign, echo=temp/sliceho.res;
 value,nho_IR1,nho_IR2,nho_IR5,nho_IR8;
 assign,echo=terminal ;
 system,"awk  '{print $3}'  temp/sliceho.res >  temp/sliceho.input";
-system,"/afs/cern.ch/user/g/giadarol/public/beambeam_macros/headonslice";
+system,"/afs/cern.ch/eng/lhc/optics/beambeam_macros/headonslice";
 
 call,file="temp/sliceho.madx";
 
