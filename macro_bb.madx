@@ -13,9 +13,8 @@ beambeam6d = 6;
 beambeam6dip = 60;
 
 
-DEFINE_BB_PARAM : macro =
-{
-  !!!Define main bean-beam parameter
+DEFINE_BB_PARAM : macro = {
+!!! Define main bean-beam parameter
 
   if(mylhcbeam==1)
   {
@@ -54,302 +53,292 @@ DEFINE_BB_PARAM : macro =
   value,lr_charge,b_h_dist;
 };
 
-CALCULATE_XSCHEME(halo1,halo2,halo5,halo8) : macro =
-{
-! Calculate on_sep1/2/5/8 to get halo collision a halo1/2/5/8 [sigma] in IP1/2/5/8
+CALCULATE_XSCHEME(halo1,halo2,halo5,halo8) : macro = {
+!!! Calculate on_sep1/2/5/8 to get halo collision a halo1/2/5/8 [sigma] in IP1/2/5/8
 
+  !! Calculate twiss table
 
-!! Calculate twiss table
+  delete,table=twissb1;
+  delete,table=twissb2;
+  
+  select,flag=twiss,clear;
+  select,flag=twiss,pattern=IP1,column=name,x,y,px,py,betx,bety;
+  select,flag=twiss,pattern=IP2,column=name,x,y,px,py,betx,bety;
+  select,flag=twiss,pattern=IP5,column=name,x,y,px,py,betx,bety;
+  select,flag=twiss,pattern=IP8,column=name,x,y,px,py,betx,bety;
+  use,sequence=lhcb1;twiss,file="temp/twiss.tfs";
+  readmytable,file="temp/twiss.tfs",table=twissb1;
+  use,sequence=lhcb2;twiss,file="temp/twiss.tfs";
+  readmytable,file="temp/twiss.tfs",table=twissb2;
 
-delete,table=twissb1;
-delete,table=twissb2;
- 
-select,flag=twiss,clear;
-select,flag=twiss,pattern=IP1,column=name,x,y,px,py,betx,bety;
-select,flag=twiss,pattern=IP2,column=name,x,y,px,py,betx,bety;
-select,flag=twiss,pattern=IP5,column=name,x,y,px,py,betx,bety;
-select,flag=twiss,pattern=IP8,column=name,x,y,px,py,betx,bety;
-use,sequence=lhcb1;twiss,file="temp/twiss.tfs";
-readmytable,file="temp/twiss.tfs",table=twissb1;
-use,sequence=lhcb2;twiss,file="temp/twiss.tfs";
-readmytable,file="temp/twiss.tfs",table=twissb2;
+  !! Calculate new on_sep to warrant halo collision in the non xing plane
 
-!! Calculate new on_sep to warrant halo collision in the non xing plane
+  sepx1 = (table(twissb1,ip1,x)-table(twissb2,ip1,x))/sqrt(beamx * table(twissb2,ip1,betx));
+  sepy1 = (table(twissb1,ip1,y)-table(twissb2,ip1,y))/sqrt(beamy * table(twissb2,ip1,bety));
+  sepr1 = sqrt(sepx1^2+sepy1^2);
+  sepx2 = (table(twissb1,ip2,x)-table(twissb2,ip2,x))/sqrt(beamx * table(twissb2,ip2,betx));
+  sepy2 = (table(twissb1,ip2,y)-table(twissb2,ip2,y))/sqrt(beamy * table(twissb2,ip2,bety));
+  sepr2 = sqrt(sepx2^2+sepy2^2);
+  sepx5 = (table(twissb1,ip5,x)-table(twissb2,ip5,x))/sqrt(beamx * table(twissb2,ip5,betx));
+  sepy5 = (table(twissb1,ip5,y)-table(twissb2,ip5,y))/sqrt(beamy * table(twissb2,ip5,bety));
+  sepr5 = sqrt(sepx5^2+sepy5^2);
+  sepx8 = (table(twissb1,ip8,x)-table(twissb2,ip8,x))/sqrt(beamx * table(twissb2,ip8,betx));
+  sepy8 = (table(twissb1,ip8,y)-table(twissb2,ip8,y))/sqrt(beamy * table(twissb2,ip8,bety));
+  sepr8 = sqrt(sepx8^2+sepy8^2);
 
-sepx1 = (table(twissb1,ip1,x)-table(twissb2,ip1,x))/sqrt(beamx * table(twissb2,ip1,betx));
-sepy1 = (table(twissb1,ip1,y)-table(twissb2,ip1,y))/sqrt(beamy * table(twissb2,ip1,bety));
-sepr1 = sqrt(sepx1^2+sepy1^2);
-sepx2 = (table(twissb1,ip2,x)-table(twissb2,ip2,x))/sqrt(beamx * table(twissb2,ip2,betx));
-sepy2 = (table(twissb1,ip2,y)-table(twissb2,ip2,y))/sqrt(beamy * table(twissb2,ip2,bety));
-sepr2 = sqrt(sepx2^2+sepy2^2);
-sepx5 = (table(twissb1,ip5,x)-table(twissb2,ip5,x))/sqrt(beamx * table(twissb2,ip5,betx));
-sepy5 = (table(twissb1,ip5,y)-table(twissb2,ip5,y))/sqrt(beamy * table(twissb2,ip5,bety));
-sepr5 = sqrt(sepx5^2+sepy5^2);
-sepx8 = (table(twissb1,ip8,x)-table(twissb2,ip8,x))/sqrt(beamx * table(twissb2,ip8,betx));
-sepy8 = (table(twissb1,ip8,y)-table(twissb2,ip8,y))/sqrt(beamy * table(twissb2,ip8,bety));
-sepr8 = sqrt(sepx8^2+sepy8^2);
+  value,sepr1,sepr2,sepr5,sepr8;
 
-value,sepr1,sepr2,sepr5,sepr8;
+  on_sep1 = halo1/sepr1 * on_sep1;
+  on_sep2 = halo2/sepr2 * on_sep2;
+  on_sep5 = halo5/sepr5 * on_sep5;
+  on_sep8 = halo8/sepr8 * on_sep8;
 
-on_sep1 = halo1/sepr1 * on_sep1;
-on_sep2 = halo2/sepr2 * on_sep2;
-on_sep5 = halo5/sepr5 * on_sep5;
-on_sep8 = halo8/sepr8 * on_sep8;
-
-value,on_x1,on_x2,on_x5,on_x8;
-value,on_sep1,on_sep2,on_sep5,on_sep8;
-value,on_alice,on_lhcb;
+  value,on_x1,on_x2,on_x5,on_x8;
+  value,on_sep1,on_sep2,on_sep5,on_sep8;
+  value,on_alice,on_lhcb;
 
 };
 
 
 INSTALL_SINGLE_BB_MARK(label,BIM,nn,where,origin) : macro = {
-
-install,element=bbmk_labelBIM_nn,class=bbmarker,at=where,from=origin;
-
+!!! Install a single beam-beam marker
+  install,element=bbmk_labelBIM_nn,class=bbmarker,at=where,from=origin;
 };
 
 HOLOC(NIR,NHO) : macro = {
-wherep= long_irNIR_NHO;
-wherem=-long_irNIR_NHO;
+!!! Auxiliary variable difinel HO slices location
+  wherep= long_irNIR_NHO;
+  wherem=-long_irNIR_NHO;
 };
 
 INSTALL_BB_MARK(BIM) : macro = {
+!!! Install all ho and parasitic beam-beam marker within +/-170 m from IP1/2/5/8 for a given beam
 
-!! Install all ho and parasitic beam-beam marker within +/-170 m from IP1/2/5/8 for a given beam
+  !option,warn,info;
+  bbmarker: marker;
+  Linteraux:=170.;
+  nparasitic:=Linteraux/b_h_dist;
 
-!option,warn,info;
-bbmarker: marker;
-Linteraux:=170.;
-nparasitic:=Linteraux/b_h_dist;
+  seqedit,sequence=lhcBIM;
 
-seqedit,sequence=lhcBIM;
+  ! Head-on
+  !! IR1
+  where=1.e-9;exec INSTALL_SINGLE_BB_MARK(ho1,BIM,0,where,IP1);
+  n=1;while ( n <= (nho_IR1/2)) {exec HOLOC(1,$n);
+  exec INSTALL_SINGLE_BB_MARK(ho.L1,BIM,$n,wherem,IP1.L1);
+  exec INSTALL_SINGLE_BB_MARK(ho.R1,BIM,$n,wherep,IP1);
+  n=n+1;};
 
-! Head-on
-!! IR1
-where=1.e-9;exec INSTALL_SINGLE_BB_MARK(ho1,BIM,0,where,IP1);
-n=1;while ( n <= (nho_IR1/2)) {exec HOLOC(1,$n);
-exec INSTALL_SINGLE_BB_MARK(ho.L1,BIM,$n,wherem,IP1.L1);
-exec INSTALL_SINGLE_BB_MARK(ho.R1,BIM,$n,wherep,IP1);
-n=n+1;};
+  !! IR2
+  where=1.e-9;exec INSTALL_SINGLE_BB_MARK(ho2,BIM,0,where,IP2);
+  n=1;while ( n <= (nho_IR2/2)) {exec HOLOC(2,$n);
+  exec INSTALL_SINGLE_BB_MARK(ho.L2,BIM,$n,wherem,IP2);
+  exec INSTALL_SINGLE_BB_MARK(ho.R2,BIM,$n,wherep,IP2);
+  n=n+1;};
 
-!! IR2
-where=1.e-9;exec INSTALL_SINGLE_BB_MARK(ho2,BIM,0,where,IP2);
-n=1;while ( n <= (nho_IR2/2)) {exec HOLOC(2,$n);
-exec INSTALL_SINGLE_BB_MARK(ho.L2,BIM,$n,wherem,IP2);
-exec INSTALL_SINGLE_BB_MARK(ho.R2,BIM,$n,wherep,IP2);
-n=n+1;};
+  !! IR5
+  where=1.e-9;exec INSTALL_SINGLE_BB_MARK(ho5,BIM,0,where,IP5);
+  n=1;while ( n <= (nho_IR5/2)) {exec HOLOC(5,$n);
+  exec INSTALL_SINGLE_BB_MARK(ho.L5,BIM,$n,wherem,IP5);
+  exec INSTALL_SINGLE_BB_MARK(ho.R5,BIM,$n,wherep,IP5);
+  n=n+1;};
 
-!! IR5
-where=1.e-9;exec INSTALL_SINGLE_BB_MARK(ho5,BIM,0,where,IP5);
-n=1;while ( n <= (nho_IR5/2)) {exec HOLOC(5,$n);
-exec INSTALL_SINGLE_BB_MARK(ho.L5,BIM,$n,wherem,IP5);
-exec INSTALL_SINGLE_BB_MARK(ho.R5,BIM,$n,wherep,IP5);
-n=n+1;};
-
-!! IR8
-where=1.e-9;exec INSTALL_SINGLE_BB_MARK(ho8,BIM,0,where,IP8);
-n=1;while ( n <= (nho_IR8/2)) {exec HOLOC(8,$n);
-exec INSTALL_SINGLE_BB_MARK(ho.L8,BIM,$n,wherem,IP8);
-exec INSTALL_SINGLE_BB_MARK(ho.R8,BIM,$n,wherep,IP8);
-n=n+1;};
+  !! IR8
+  where=1.e-9;exec INSTALL_SINGLE_BB_MARK(ho8,BIM,0,where,IP8);
+  n=1;while ( n <= (nho_IR8/2)) {exec HOLOC(8,$n);
+  exec INSTALL_SINGLE_BB_MARK(ho.L8,BIM,$n,wherem,IP8);
+  exec INSTALL_SINGLE_BB_MARK(ho.R8,BIM,$n,wherep,IP8);
+  n=n+1;};
 
 
-! Long-range
-n=1;while ( n <= nparasitic) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.L1,BIM,$n,where,IP1.L1);n=n+1;};
-n=1;while ( n <= nparasitic) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.R1,BIM,$n,where,IP1)   ;n=n+1;};
-n=1;while ( n <= nparasitic) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.L2,BIM,$n,where,IP2)   ;n=n+1;};
-n=1;while ( n <= nparasitic) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.R2,BIM,$n,where,IP2)   ;n=n+1;};
-n=1;while ( n <= nparasitic) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.L5,BIM,$n,where,IP5)   ;n=n+1;};
-n=1;while ( n <= nparasitic) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.R5,BIM,$n,where,IP5)   ;n=n+1;};
-n=1;while ( n <= nparasitic) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.L8,BIM,$n,where,IP8)   ;n=n+1;};
-n=1;while ( n <= nparasitic) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.R8,BIM,$n,where,IP8)   ;n=n+1;};
+  ! Long-range
+  n=1;while ( n <= nparasitic) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.L1,BIM,$n,where,IP1.L1);n=n+1;};
+  n=1;while ( n <= nparasitic) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.R1,BIM,$n,where,IP1)   ;n=n+1;};
+  n=1;while ( n <= nparasitic) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.L2,BIM,$n,where,IP2)   ;n=n+1;};
+  n=1;while ( n <= nparasitic) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.R2,BIM,$n,where,IP2)   ;n=n+1;};
+  n=1;while ( n <= nparasitic) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.L5,BIM,$n,where,IP5)   ;n=n+1;};
+  n=1;while ( n <= nparasitic) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.R5,BIM,$n,where,IP5)   ;n=n+1;};
+  n=1;while ( n <= nparasitic) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.L8,BIM,$n,where,IP8)   ;n=n+1;};
+  n=1;while ( n <= nparasitic) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_MARK(par.R8,BIM,$n,where,IP8)   ;n=n+1;};
 
-endedit;
+  endedit;
 
-!option,-warn,-info;
-
-};
-
-REMOVE_BB_MARKER : macro =
-{
-
-!! Remove beam-beam marker
-
-option,warn,info;
-
-seqedit,sequence=lhcb1;
-select,flag=seqedit,clear;
-select,flag=seqedit,class=bbmarker;
-remove,element=SELECTED;
-endedit;
-
-seqedit,sequence=lhcb2;
-select,flag=seqedit,clear;
-select,flag=seqedit,class=bbmarker;
-remove,element=SELECTED;
-endedit;
-
-option,-warn,-info;
+  !option,-warn,-info;
 
 };
 
+REMOVE_BB_MARKER : macro = {
+!!! Remove beam-beam marker
+  option,warn,info;
 
-CALCULATE_BB_LENS: macro =
-{
+  seqedit,sequence=lhcb1;
+  select,flag=seqedit,clear;
+  select,flag=seqedit,class=bbmarker;
+  remove,element=SELECTED;
+  endedit;
 
-! Generate survey and twiss table for further use
+  seqedit,sequence=lhcb2;
+  select,flag=seqedit,clear;
+  select,flag=seqedit,class=bbmarker;
+  remove,element=SELECTED;
+  endedit;
 
-!! Calculate survey table on the right of each IP 
-
-delete,table=suir1b1;
-delete,table=suir1b2;
-delete,table=suir2b1;
-delete,table=suir2b2;
-delete,table=suir5b1;
-delete,table=suir5b2;
-delete,table=suir8b1;
-delete,table=suir8b2;
-
-select,flag=survey,clear;
-select,flag=survey,class=bbmarker;
-use,sequence=lhcb1,range=e.ds.l1.b1/s.ds.r1.b1;survey,x0=-0.097,file="temp/surveyaux.tfs";
-readmytable,file="temp/surveyaux.tfs",table=suir1b1;
-use,sequence=lhcb2,range=e.ds.l1.b2/s.ds.r1.b2;survey,x0= 0.097,file="temp/surveyaux.tfs";
-readmytable,file="temp/surveyaux.tfs",table=suir1b2;
-use,sequence=lhcb1,range=e.ds.l2.b1/s.ds.r2.b1;survey,x0= 0.097,file="temp/surveyaux.tfs";
-readmytable,file="temp/surveyaux.tfs",table=suir2b1;
-use,sequence=lhcb2,range=e.ds.l2.b2/s.ds.r2.b2;survey,x0=-0.097,file="temp/surveyaux.tfs";
-readmytable,file="temp/surveyaux.tfs",table=suir2b2;
-use,sequence=lhcb1,range=e.ds.l5.b1/s.ds.r5.b1;survey,x0=-0.097,file="temp/surveyaux.tfs";
-readmytable,file="temp/surveyaux.tfs",table=suir5b1;
-use,sequence=lhcb2,range=e.ds.l5.b2/s.ds.r5.b2;survey,x0= 0.097,file="temp/surveyaux.tfs";
-readmytable,file="temp/surveyaux.tfs",table=suir5b2;
-use,sequence=lhcb1,range=e.ds.l8.b1/s.ds.r8.b1;survey,x0= 0.097,file="temp/surveyaux.tfs";
-readmytable,file="temp/surveyaux.tfs",table=suir8b1;
-use,sequence=lhcb2,range=e.ds.l8.b2/s.ds.r8.b2;survey,x0=-0.097,file="temp/surveyaux.tfs";
-readmytable,file="temp/surveyaux.tfs",table=suir8b2;
-
-!! Calculate twiss table
-
-delete,table=twissb1;
-delete,table=twissb2;
- 
-select,flag=twiss,clear;
-select,flag=twiss,class=bbmarker,column=name,x,y,px,py,betx,bety,sig11,sig12,sig22,sig33,sig34,sig44,sig13,sig14,sig23,sig24;
-use,sequence=lhcb1;twiss,file="temp/twiss.tfs";
-readmytable,file="temp/twiss.tfs",table=twissb1;
-use,sequence=lhcb2;twiss,file="temp/twiss.tfs";
-readmytable,file="temp/twiss.tfs",table=twissb2;
-
-!! Calculate twiss table with crab
- on0_x1=on_x1; on0_sep1=on_sep1; on0_x2=on_x2; on0_sep2=on_sep2; on0_alice=on_alice;
- on0_x5=on_x5; on0_sep5=on_sep5; on0_x8=on_x8; on0_sep8=on_sep8; on0_lhcb =on_lhcb;
- on0_a1=on_a1; on0_o1=on_o1;on0_oe1=on_oe1;on0_a5=on_a5;on0_o5=on_o5;on0_oe5=on_oe5;
- on0_a2=on_a2; on0_o2=on_o2;on0_oe2=on_oe2;on0_a8=on_a8;on0_o8=on_o8;on0_oe8=on_oe8;
- on0_oh1=on_oh1;on0_oh2=on_oh2;on0_oh5=on_oh5;on0_oh8=on_oh8;
- on0_ov1=on_ov1;on0_ov2=on_ov2;on0_ov5=on_ov5;on0_ov8=on_ov8;
- on_x1:=0; on_sep1:=0; on_x2:=0; on_sep2:=0; on_alice:=0;
- on_x5:=0; on_sep5:=0; on_x8:=0; on_sep8:=0; on_lhcb :=0;
- on_a1=0;on0_o1=0;on_oe1=0;on_a5=0;on_o5=0;on_oe5=0;
- on_a2=0;on0_o2=0;on_oe2=0;on_a8=0;on_o8=0;on_oe8=0;
- on_oh1=0;on_oh2=0;on_oh5=0;on_oh8=0;
- on_ov1=0;on_ov2=0;on_ov5=0;on_ov8=0;
- 
- use,sequence=lhcb1;twiss;corbitmax1=table(summ,xcomax)^2+table(summ,ycomax)^2;
- if(corbitmax1>1.d-15) {print,text="crossing bump not off for b1 when calculating CC effect in bbmacro"; stop;};
- use,sequence=lhcb2;twiss;corbitmax2=table(summ,xcomax)^2+table(summ,ycomax)^2;
- if(corbitmax2>1.d-15) {print,text="crossing bump not off for b2 when calculating CC effect in bbmacro"; stop;};
- 
- on_crab1:=fraction_crab*on0_x1;on_crab5:=fraction_crab*on0_x5;z_crab=0.075;
- select,flag=twiss,clear;
- select,flag=twiss,class=bbmarker,column=name,s,x,y,betx,bety,sig11,sig12,sig22,sig33,sig34,sig44,sig13,sig14,sig23,sig24;
- use,sequence=lhcb1;twiss,file="temp/twiss.tfs";
- readmytable,file="temp/twiss.tfs",table=twissb1_crab;
- use,sequence=lhcb2;twiss,file="temp/twiss.tfs";
- readmytable,file="temp/twiss.tfs",table=twissb2_crab;
- 
- on_x1=on0_x1; on_sep1=on0_sep1;on_x2=on0_x2; on_sep2=on0_sep2; on_alice=on0_alice;
- on_x5=on0_x5; on_sep5=on0_sep5;on_x8=on0_x8; on_sep8=on0_sep8; on_lhcb =on0_lhcb;
- on_a1=on0_a1; on_o1=on0_o1;on_oe1=on0_oe1;on_a5=on0_a5;on_o5=on0_o5;on_oe5=on0_oe5;
- on_a2=on0_a2; on_o2=on0_o2;on_oe2=on0_oe2;on_a8=on0_a8;on_o8=on0_o8;on_oe8=on0_oe8;
- on_oh1=on0_oh1;on_oh2=on0_oh2;on_oh5=on0_oh5;on_oh8=on0_oh8;
- on_ov1=on0_ov1;on_ov2=on0_ov2;on_ov5=on0_ov5;on_ov8=on0_ov8;
-
- on_crab1:=0;on_crab5:=0;z_crab=0;
-
-!! Define head on BB lens for beam1/2
-
-exec define_BB_lens(ho,1,0,hocharge_IR1,beambeam6dip);
-n=1;while(n<=(nho_IR1/2)) {exec define_BB_lens(ho.L,1,$n,hocharge_IR1,beambeam6d);exec define_BB_lens(ho.R,1,$n,hocharge_IR1,beambeam6d);n=n+1;};
-exec define_BB_lens(ho,2,0,hocharge_IR2,beambeam6dip);
-n=1;while(n<=(nho_IR2/2)) {exec define_BB_lens(ho.L,2,$n,hocharge_IR2,beambeam6d);exec define_BB_lens(ho.R,2,$n,hocharge_IR2,beambeam6d);n=n+1;};
-exec define_BB_lens(ho,5,0,hocharge_IR5,beambeam6dip);
-n=1;while(n<=(nho_IR5/2)) {exec define_BB_lens(ho.L,5,$n,hocharge_IR5,beambeam6d);exec define_BB_lens(ho.R,5,$n,hocharge_IR5,beambeam6d);n=n+1;};
-exec define_BB_lens(ho,8,0,hocharge_IR8,beambeam6dip);
-n=1;while(n<=(nho_IR8/2)) {exec define_BB_lens(ho.L,8,$n,hocharge_IR8,beambeam6d);exec define_BB_lens(ho.R,8,$n,hocharge_IR8,beambeam6d);n=n+1;};
-
-!! Define parasitic BB lens for beam1/2
-
-n=1; while ( n <= nparasitic ) {
-exec define_BB_lens(par.L,1,$n,lr_charge,beambeam4d);exec define_BB_lens(par.R,1,$n,lr_charge,beambeam4d); if (abs(x_su) < 1.e-12) {npara0_1 = n;};
-exec define_BB_lens(par.L,2,$n,lr_charge,beambeam4d);exec define_BB_lens(par.R,2,$n,lr_charge,beambeam4d); if (abs(x_su) < 1.e-12) {npara0_2 = n;};
-exec define_BB_lens(par.L,5,$n,lr_charge,beambeam4d);exec define_BB_lens(par.R,5,$n,lr_charge,beambeam4d); if (abs(x_su) < 1.e-12) {npara0_5 = n;};
-exec define_BB_lens(par.L,8,$n,lr_charge,beambeam4d);exec define_BB_lens(par.R,8,$n,lr_charge,beambeam4d); if (abs(x_su) < 1.e-12) {npara0_8 = n;};
-n=n+1;};
-
-system,"echo 'Number of parasitic encounter before D1'";
-value,npara0_1,npara0_2,npara0_5,npara0_8;
-
+  option,-warn,-info;
 };
 
-DEFINE_BB_LENS(label,NIR,nn,flag,bbcomm) : macro =
-{
 
-anorm_crab=sin(twopi*HRF400/LHCLENGTH*0.075);
+CALCULATE_BB_LENS: macro = {
+!!! Generate survey and twiss table for further use
 
-x_su_labelNIR_nn=table(suirNIRb2,bbmk_labelNIRb2_nn,x)-table(suirNIRb1,bbmk_labelNIRb1_nn,x)-
-                (table(suirNIRb2,bbmk_hoNIRb2_0,x)-table(suirNIRb1,bbmk_hoNIRb1_0,x));
-x_su = x_su_labelNIR_nn;
+  !! Calculate survey table on the right of each IP 
 
-sigx_labelNIRb1_nn  = sqrt(beamx*table(twissb2,bbmk_labelNIRb2_nn,betx));
-sigy_labelNIRb1_nn  = sqrt(beamy*table(twissb2,bbmk_labelNIRb2_nn,bety));
-posx_labelNIRb1_nn  = table(twissb2,bbmk_labelNIRb2_nn,x)+x_su_labelNIR_nn;
-posy_labelNIRb1_nn  = table(twissb2,bbmk_labelNIRb2_nn,y);
+  delete,table=suir1b1;
+  delete,table=suir1b2;
+  delete,table=suir2b1;
+  delete,table=suir2b2;
+  delete,table=suir5b1;
+  delete,table=suir5b2;
+  delete,table=suir8b1;
+  delete,table=suir8b2;
 
-s_labelNIRb1_nn = table(twissb1_crab,bbmk_labelNIRb1_nn,s)-table(twissb1_crab,bbmk_hoNIRb1_0,s);
-sin_labelNIRb2_nn=sin(2*s_labelNIRb1_nn*twopi*HRF400/LHCLENGTH)/anorm_crab;
-if (abs(s_labelNIRb1_nn)> b_h_dist*0.5) {sin_labelNIRb2_nn=0;};
-posx_labelNIRb1_crab_nn  = table(twissb2_crab,bbmk_labelNIRb2_nn,x)*sin_labelNIRb2_nn;
-posy_labelNIRb1_crab_nn  = table(twissb2_crab,bbmk_labelNIRb2_nn,y)*sin_labelNIRb2_nn;
+  select,flag=survey,clear;
+  select,flag=survey,class=bbmarker;
+  use,sequence=lhcb1,range=e.ds.l1.b1/s.ds.r1.b1;survey,x0=-0.097,file="temp/surveyaux.tfs";
+  readmytable,file="temp/surveyaux.tfs",table=suir1b1;
+  use,sequence=lhcb2,range=e.ds.l1.b2/s.ds.r1.b2;survey,x0= 0.097,file="temp/surveyaux.tfs";
+  readmytable,file="temp/surveyaux.tfs",table=suir1b2;
+  use,sequence=lhcb1,range=e.ds.l2.b1/s.ds.r2.b1;survey,x0= 0.097,file="temp/surveyaux.tfs";
+  readmytable,file="temp/surveyaux.tfs",table=suir2b1;
+  use,sequence=lhcb2,range=e.ds.l2.b2/s.ds.r2.b2;survey,x0=-0.097,file="temp/surveyaux.tfs";
+  readmytable,file="temp/surveyaux.tfs",table=suir2b2;
+  use,sequence=lhcb1,range=e.ds.l5.b1/s.ds.r5.b1;survey,x0=-0.097,file="temp/surveyaux.tfs";
+  readmytable,file="temp/surveyaux.tfs",table=suir5b1;
+  use,sequence=lhcb2,range=e.ds.l5.b2/s.ds.r5.b2;survey,x0= 0.097,file="temp/surveyaux.tfs";
+  readmytable,file="temp/surveyaux.tfs",table=suir5b2;
+  use,sequence=lhcb1,range=e.ds.l8.b1/s.ds.r8.b1;survey,x0= 0.097,file="temp/surveyaux.tfs";
+  readmytable,file="temp/surveyaux.tfs",table=suir8b1;
+  use,sequence=lhcb2,range=e.ds.l8.b2/s.ds.r8.b2;survey,x0=-0.097,file="temp/surveyaux.tfs";
+  readmytable,file="temp/surveyaux.tfs",table=suir8b2;
+
+  !! Calculate twiss table
+
+  delete,table=twissb1;
+  delete,table=twissb2;
+  
+  select,flag=twiss,clear;
+  select,flag=twiss,class=bbmarker,column=name,x,y,px,py,betx,bety,sig11,sig12,sig22,sig33,sig34,sig44,sig13,sig14,sig23,sig24;
+  use,sequence=lhcb1;twiss,file="temp/twiss.tfs";
+  readmytable,file="temp/twiss.tfs",table=twissb1;
+  use,sequence=lhcb2;twiss,file="temp/twiss.tfs";
+  readmytable,file="temp/twiss.tfs",table=twissb2;
+
+  !! Calculate twiss table with crab
+  on0_x1=on_x1; on0_sep1=on_sep1; on0_x2=on_x2; on0_sep2=on_sep2; on0_alice=on_alice;
+  on0_x5=on_x5; on0_sep5=on_sep5; on0_x8=on_x8; on0_sep8=on_sep8; on0_lhcb =on_lhcb;
+  on0_a1=on_a1; on0_o1=on_o1;on0_oe1=on_oe1;on0_a5=on_a5;on0_o5=on_o5;on0_oe5=on_oe5;
+  on0_a2=on_a2; on0_o2=on_o2;on0_oe2=on_oe2;on0_a8=on_a8;on0_o8=on_o8;on0_oe8=on_oe8;
+  on0_oh1=on_oh1;on0_oh2=on_oh2;on0_oh5=on_oh5;on0_oh8=on_oh8;
+  on0_ov1=on_ov1;on0_ov2=on_ov2;on0_ov5=on_ov5;on0_ov8=on_ov8;
+  on_x1:=0; on_sep1:=0; on_x2:=0; on_sep2:=0; on_alice:=0;
+  on_x5:=0; on_sep5:=0; on_x8:=0; on_sep8:=0; on_lhcb :=0;
+  on_a1=0;on0_o1=0;on_oe1=0;on_a5=0;on_o5=0;on_oe5=0;
+  on_a2=0;on0_o2=0;on_oe2=0;on_a8=0;on_o8=0;on_oe8=0;
+  on_oh1=0;on_oh2=0;on_oh5=0;on_oh8=0;
+  on_ov1=0;on_ov2=0;on_ov5=0;on_ov8=0;
+  
+  use,sequence=lhcb1;twiss;corbitmax1=table(summ,xcomax)^2+table(summ,ycomax)^2;
+  if(corbitmax1>1.d-15) {print,text="crossing bump not off for b1 when calculating CC effect in bbmacro"; stop;};
+  use,sequence=lhcb2;twiss;corbitmax2=table(summ,xcomax)^2+table(summ,ycomax)^2;
+  if(corbitmax2>1.d-15) {print,text="crossing bump not off for b2 when calculating CC effect in bbmacro"; stop;};
+  
+  on_crab1:=fraction_crab*on0_x1;on_crab5:=fraction_crab*on0_x5;z_crab=0.075;
+  select,flag=twiss,clear;
+  select,flag=twiss,class=bbmarker,column=name,s,x,y,betx,bety,sig11,sig12,sig22,sig33,sig34,sig44,sig13,sig14,sig23,sig24;
+  use,sequence=lhcb1;twiss,file="temp/twiss.tfs";
+  readmytable,file="temp/twiss.tfs",table=twissb1_crab;
+  use,sequence=lhcb2;twiss,file="temp/twiss.tfs";
+  readmytable,file="temp/twiss.tfs",table=twissb2_crab;
+  
+  on_x1=on0_x1; on_sep1=on0_sep1;on_x2=on0_x2; on_sep2=on0_sep2; on_alice=on0_alice;
+  on_x5=on0_x5; on_sep5=on0_sep5;on_x8=on0_x8; on_sep8=on0_sep8; on_lhcb =on0_lhcb;
+  on_a1=on0_a1; on_o1=on0_o1;on_oe1=on0_oe1;on_a5=on0_a5;on_o5=on0_o5;on_oe5=on0_oe5;
+  on_a2=on0_a2; on_o2=on0_o2;on_oe2=on0_oe2;on_a8=on0_a8;on_o8=on0_o8;on_oe8=on0_oe8;
+  on_oh1=on0_oh1;on_oh2=on0_oh2;on_oh5=on0_oh5;on_oh8=on0_oh8;
+  on_ov1=on0_ov1;on_ov2=on0_ov2;on_ov5=on0_ov5;on_ov8=on0_ov8;
+
+  on_crab1:=0;on_crab5:=0;z_crab=0;
+
+  !! Define head on BB lens for beam1/2
+
+  exec define_BB_lens(ho,1,0,hocharge_IR1,beambeam6dip);
+  n=1;while(n<=(nho_IR1/2)) {exec define_BB_lens(ho.L,1,$n,hocharge_IR1,beambeam6d);exec define_BB_lens(ho.R,1,$n,hocharge_IR1,beambeam6d);n=n+1;};
+  exec define_BB_lens(ho,2,0,hocharge_IR2,beambeam6dip);
+  n=1;while(n<=(nho_IR2/2)) {exec define_BB_lens(ho.L,2,$n,hocharge_IR2,beambeam6d);exec define_BB_lens(ho.R,2,$n,hocharge_IR2,beambeam6d);n=n+1;};
+  exec define_BB_lens(ho,5,0,hocharge_IR5,beambeam6dip);
+  n=1;while(n<=(nho_IR5/2)) {exec define_BB_lens(ho.L,5,$n,hocharge_IR5,beambeam6d);exec define_BB_lens(ho.R,5,$n,hocharge_IR5,beambeam6d);n=n+1;};
+  exec define_BB_lens(ho,8,0,hocharge_IR8,beambeam6dip);
+  n=1;while(n<=(nho_IR8/2)) {exec define_BB_lens(ho.L,8,$n,hocharge_IR8,beambeam6d);exec define_BB_lens(ho.R,8,$n,hocharge_IR8,beambeam6d);n=n+1;};
+
+  !! Define parasitic BB lens for beam1/2
+
+  n=1; while ( n <= nparasitic ) {
+  exec define_BB_lens(par.L,1,$n,lr_charge,beambeam4d);exec define_BB_lens(par.R,1,$n,lr_charge,beambeam4d); if (abs(x_su) < 1.e-12) {npara0_1 = n;};
+  exec define_BB_lens(par.L,2,$n,lr_charge,beambeam4d);exec define_BB_lens(par.R,2,$n,lr_charge,beambeam4d); if (abs(x_su) < 1.e-12) {npara0_2 = n;};
+  exec define_BB_lens(par.L,5,$n,lr_charge,beambeam4d);exec define_BB_lens(par.R,5,$n,lr_charge,beambeam4d); if (abs(x_su) < 1.e-12) {npara0_5 = n;};
+  exec define_BB_lens(par.L,8,$n,lr_charge,beambeam4d);exec define_BB_lens(par.R,8,$n,lr_charge,beambeam4d); if (abs(x_su) < 1.e-12) {npara0_8 = n;};
+  n=n+1;};
+
+  system,"echo 'Number of parasitic encounter before D1'";
+  value,npara0_1,npara0_2,npara0_5,npara0_8;
+};
+
+DEFINE_BB_LENS(label,NIR,nn,flag,bbcomm) : macro = {
+!!! Define the BB lenses with CC
+  anorm_crab=sin(twopi*HRF400/LHCLENGTH*0.075);
+
+  x_su_labelNIR_nn=table(suirNIRb2,bbmk_labelNIRb2_nn,x)-table(suirNIRb1,bbmk_labelNIRb1_nn,x)-
+                  (table(suirNIRb2,bbmk_hoNIRb2_0,x)-table(suirNIRb1,bbmk_hoNIRb1_0,x));
+  x_su = x_su_labelNIR_nn;
+
+  sigx_labelNIRb1_nn  = sqrt(beamx*table(twissb2,bbmk_labelNIRb2_nn,betx));
+  sigy_labelNIRb1_nn  = sqrt(beamy*table(twissb2,bbmk_labelNIRb2_nn,bety));
+  posx_labelNIRb1_nn  = table(twissb2,bbmk_labelNIRb2_nn,x)+x_su_labelNIR_nn;
+  posy_labelNIRb1_nn  = table(twissb2,bbmk_labelNIRb2_nn,y);
+
+  s_labelNIRb1_nn = table(twissb1_crab,bbmk_labelNIRb1_nn,s)-table(twissb1_crab,bbmk_hoNIRb1_0,s);
+  sin_labelNIRb2_nn=sin(2*s_labelNIRb1_nn*twopi*HRF400/LHCLENGTH)/anorm_crab;
+  if (abs(s_labelNIRb1_nn)> b_h_dist*0.5) {sin_labelNIRb2_nn=0;};
+  posx_labelNIRb1_crab_nn  = table(twissb2_crab,bbmk_labelNIRb2_nn,x)*sin_labelNIRb2_nn;
+  posy_labelNIRb1_crab_nn  = table(twissb2_crab,bbmk_labelNIRb2_nn,y)*sin_labelNIRb2_nn;
 
 
-sigx_labelNIRb2_nn  = sqrt(beamx*table(twissb1,bbmk_labelNIRb1_nn,betx));
-sigy_labelNIRb2_nn  = sqrt(beamy*table(twissb1,bbmk_labelNIRb1_nn,bety));
-posx_labelNIRb2_nn  = table(twissb1,bbmk_labelNIRb1_nn,x)-x_su_labelNIR_nn;
-posy_labelNIRb2_nn  = table(twissb1,bbmk_labelNIRb1_nn,y);
+  sigx_labelNIRb2_nn  = sqrt(beamx*table(twissb1,bbmk_labelNIRb1_nn,betx));
+  sigy_labelNIRb2_nn  = sqrt(beamy*table(twissb1,bbmk_labelNIRb1_nn,bety));
+  posx_labelNIRb2_nn  = table(twissb1,bbmk_labelNIRb1_nn,x)-x_su_labelNIR_nn;
+  posy_labelNIRb2_nn  = table(twissb1,bbmk_labelNIRb1_nn,y);
 
-s_labelNIRb2_nn = table(twissb2_crab,bbmk_labelNIRb2_nn,s)-table(twissb2_crab,bbmk_hoNIRb2_0,s);
-sin_labelNIRb1_nn=sin(2*s_labelNIRb2_nn*twopi*HRF400/LHCLENGTH)/anorm_crab;
-if (abs(s_labelNIRb2_nn)> b_h_dist*0.5) {sin_labelNIRb1_nn=0;};
-posx_labelNIRb2_crab_nn  = table(twissb1_crab,bbmk_labelNIRb1_nn,x)*sin_labelNIRb1_nn;
-posy_labelNIRb2_crab_nn  = table(twissb1_crab,bbmk_labelNIRb1_nn,y)*sin_labelNIRb1_nn;
+  s_labelNIRb2_nn = table(twissb2_crab,bbmk_labelNIRb2_nn,s)-table(twissb2_crab,bbmk_hoNIRb2_0,s);
+  sin_labelNIRb1_nn=sin(2*s_labelNIRb2_nn*twopi*HRF400/LHCLENGTH)/anorm_crab;
+  if (abs(s_labelNIRb2_nn)> b_h_dist*0.5) {sin_labelNIRb1_nn=0;};
+  posx_labelNIRb2_crab_nn  = table(twissb1_crab,bbmk_labelNIRb1_nn,x)*sin_labelNIRb1_nn;
+  posy_labelNIRb2_crab_nn  = table(twissb1_crab,bbmk_labelNIRb1_nn,y)*sin_labelNIRb1_nn;
 
 
-bb_labelNIRb1_nn : beambeam, sigx   = sigx_labelNIRb1_nn, sigy    = sigy_labelNIRb1_nn,
-                             xma    = posx_labelNIRb1_nn + posx_labelNIRb1_crab_nn,
-			     yma    = posy_labelNIRb1_nn + posy_labelNIRb1_crab_nn,
-		             charge:= flag * ON_BB_CHARGE;
-bb_labelNIRb1_nn, slot_id = bbcomm;
+  bb_labelNIRb1_nn : beambeam, sigx   = sigx_labelNIRb1_nn, sigy    = sigy_labelNIRb1_nn,
+                              xma    = posx_labelNIRb1_nn + posx_labelNIRb1_crab_nn,
+            yma    = posy_labelNIRb1_nn + posy_labelNIRb1_crab_nn,
+                  charge:= flag * ON_BB_CHARGE;
+  bb_labelNIRb1_nn, slot_id = bbcomm;
 
-bb_labelNIRb2_nn : beambeam, sigx   = sigx_labelNIRb2_nn, sigy    = sigy_labelNIRb2_nn,
-                             xma    = posx_labelNIRb2_nn + posx_labelNIRb2_crab_nn,
-			     yma    = posy_labelNIRb2_nn + posy_labelNIRb2_crab_nn,
-		             charge:= flag * ON_BB_CHARGE;
-bb_labelNIRb2_nn, slot_id =  bbcomm;
+  bb_labelNIRb2_nn : beambeam, sigx   = sigx_labelNIRb2_nn, sigy    = sigy_labelNIRb2_nn,
+                              xma    = posx_labelNIRb2_nn + posx_labelNIRb2_crab_nn,
+            yma    = posy_labelNIRb2_nn + posy_labelNIRb2_crab_nn,
+                  charge:= flag * ON_BB_CHARGE;
+  bb_labelNIRb2_nn, slot_id =  bbcomm;
 };
 
 PRINT_BB_LENSES: macro = {
+!!! Print the lenses information in bb_lenses.dat
   !! Set outfile
   option,-echo, -info;
   system,"rm -rf bb_lenses.dat";
@@ -385,6 +374,7 @@ PRINT_BB_LENSES: macro = {
 }
 
 SIXTRACK_INPUT_BB_LENSES: macro = {
+!!! Prepare the fc.3 and fc.2
   !! add the beambeam block containing all the lenses in the fort.3
   system,"cat bb_lenses.dat >> fc.3";
   !! set the all the parameters of the lenses to zero in the fort.2 to allow reading from the fort.3
@@ -392,23 +382,24 @@ SIXTRACK_INPUT_BB_LENSES: macro = {
 }
 
 PRINT_LENS4D(label,NIR,nn,flag): macro = {
-if (flag > 0.) {
-  option,-echo, -info;
-  s2x_labelNIRb2_nn = table(twissb2,bbmk_labelNIRb2_nn,sig11)*1e6;
-  s2y_labelNIRb2_nn = table(twissb2,bbmk_labelNIRb2_nn,sig33)*1e6;
-! Changing from reference to closed orbit
-  ox_labelNIRb2_nn = (posx_labelNIRb1_nn+posx_labelNIRb1_crab_nn-posx_labelNIRb2_nn-x_su_labelNIR_nn+1e-10)*1e3; 
-  oy_labelNIRb2_nn = (posy_labelNIRb1_nn+posy_labelNIRb1_crab_nn-posy_labelNIRb2_nn+1e-10)*1e3;
-! Avoid numerical instabilities in Sixtrack
-  if ( ox_labelNIRb2_nn > 0 && ox_labelNIRb2_nn <  1e-7 ) { ox_labelNIRb2_nn =  1e-7; }
-  if ( ox_labelNIRb2_nn < 0 && ox_labelNIRb2_nn > -1e-7 ) { ox_labelNIRb2_nn = -1e-7; }
-  if ( oy_labelNIRb2_nn > 0 && oy_labelNIRb2_nn <  1e-7 ) { oy_labelNIRb2_nn =  1e-7; }
-  if ( oy_labelNIRb2_nn < 0 && oy_labelNIRb2_nn > -1e-7 ) { oy_labelNIRb2_nn = -1e-7; }
+!!! Printing of the 4D lenses  
+  if (flag > 0.) {
+    option,-echo, -info;
+    s2x_labelNIRb2_nn = table(twissb2,bbmk_labelNIRb2_nn,sig11)*1e6;
+    s2y_labelNIRb2_nn = table(twissb2,bbmk_labelNIRb2_nn,sig33)*1e6;
+  ! Changing from reference to closed orbit
+    ox_labelNIRb2_nn = (posx_labelNIRb1_nn+posx_labelNIRb1_crab_nn-posx_labelNIRb2_nn-x_su_labelNIR_nn+1e-10)*1e3; 
+    oy_labelNIRb2_nn = (posy_labelNIRb1_nn+posy_labelNIRb1_crab_nn-posy_labelNIRb2_nn+1e-10)*1e3;
+  ! Avoid numerical instabilities in Sixtrack
+    if ( ox_labelNIRb2_nn > 0 && ox_labelNIRb2_nn <  1e-7 ) { ox_labelNIRb2_nn =  1e-7; }
+    if ( ox_labelNIRb2_nn < 0 && ox_labelNIRb2_nn > -1e-7 ) { ox_labelNIRb2_nn = -1e-7; }
+    if ( oy_labelNIRb2_nn > 0 && oy_labelNIRb2_nn <  1e-7 ) { oy_labelNIRb2_nn =  1e-7; }
+    if ( oy_labelNIRb2_nn < 0 && oy_labelNIRb2_nn > -1e-7 ) { oy_labelNIRb2_nn = -1e-7; }
 
-!  print, TEXT="name nslices Sxx Syy hsep vsep ratio";
-  printf, TEXT="bb_labelnirb1_nn 0 %F %F %F %F 1", value= s2x_labelNIRb2_nn, s2y_labelNIRb2_nn,-ox_labelNIRb2_nn,-oy_labelNIRb2_nn;
-!  printf, TEXT="%F %F %F %F %F %F", value = posx_labelNIRb2_nn, posx_labelNIRb2_crab_nn, posx_labelNIRb1_nn, posx_labelNIRb1_crab_nn, ox_labelNIRb2_nn, x_su_labelNIR_nn;
-}
+  !  print, TEXT="name nslices Sxx Syy hsep vsep ratio";
+    printf, TEXT="bb_labelnirb1_nn 0 %F %F %F %F 1", value= s2x_labelNIRb2_nn, s2y_labelNIRb2_nn,-ox_labelNIRb2_nn,-oy_labelNIRb2_nn;
+  !  printf, TEXT="%F %F %F %F %F %F", value = posx_labelNIRb2_nn, posx_labelNIRb2_crab_nn, posx_labelNIRb1_nn, posx_labelNIRb1_crab_nn, ox_labelNIRb2_nn, x_su_labelNIR_nn;
+  }
 };
 
 PRINT_LENS6D(label,NIR,nn,flag) : macro = {
