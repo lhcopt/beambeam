@@ -12,7 +12,6 @@ beambeam4d = 4;
 beambeam6d = 6;
 beambeam6dip = 60;
 
-
 DEFINE_BB_PARAM : macro = {
 !!! Define main bean-beam parameter
 
@@ -99,7 +98,6 @@ CALCULATE_XSCHEME(halo1,halo2,halo5,halo8) : macro = {
 
 };
 
-
 INSTALL_SINGLE_BB_MARK(label,BIM,nn,where,origin) : macro = {
 !!! Install a single beam-beam marker
   install,element=bbmk_labelBIM_nn,class=bbmarker,at=where,from=origin;
@@ -185,7 +183,6 @@ REMOVE_BB_MARKER : macro = {
 
   option,-warn,-info;
 };
-
 
 CALCULATE_BB_LENS: macro = {
 !!! Generate survey and twiss table for further use
@@ -403,19 +400,19 @@ PRINT_LENS4D(label,NIR,nn,flag): macro = {
 };
 
 PRINT_LENS6D(label,NIR,nn,flag) : macro = {
-
+!!! Printing of the 6D lenses  
   ox_labelNIRb2_nn = (posx_labelNIRb1_nn+posx_labelNIRb1_crab_nn-posx_labelNIRb2_nn-x_su_labelNIR_nn+1e-10)*1e3;
   oy_labelNIRb2_nn = (posy_labelNIRb1_nn+posy_labelNIRb1_crab_nn-posy_labelNIRb2_nn+1e-10)*1e3;
-! Avoid numerical instabilities in Sixtrack
+  ! Avoid numerical instabilities in Sixtrack
   if ( ox_labelNIRb2_nn > 0 && ox_labelNIRb2_nn <  1e-7 ) { ox_labelNIRb2_nn =  1e-7; }
   if ( ox_labelNIRb2_nn < 0 && ox_labelNIRb2_nn > -1e-7 ) { ox_labelNIRb2_nn = -1e-7; }
   if ( oy_labelNIRb2_nn > 0 && oy_labelNIRb2_nn <  1e-7 ) { oy_labelNIRb2_nn =  1e-7; }
   if ( oy_labelNIRb2_nn < 0 && oy_labelNIRb2_nn > -1e-7 ) { oy_labelNIRb2_nn = -1e-7; }
 
-!  printf, TEXT="TEST1 bb_labelnirb1_nn %F %F %F %F %F", value= posx_labelNIRb1_nn, posx_labelNIRb1_crab_nn, posx_labelNIRb2_nn, x_su_labelNIR_nn;
-!  printf, TEXT="TEST2 bb_labelnirb1_nn %F %F", value= ox_labelNIRb2_nn, (posx_labelNIRb1_nn+posx_labelNIRb1_crab_nn-posx_labelNIRb2_nn-x_su_labelNIR_nn+1e-10)*1e3;
+  !  printf, TEXT="TEST1 bb_labelnirb1_nn %F %F %F %F %F", value= posx_labelNIRb1_nn, posx_labelNIRb1_crab_nn, posx_labelNIRb2_nn, x_su_labelNIR_nn;
+  !  printf, TEXT="TEST2 bb_labelnirb1_nn %F %F", value= ox_labelNIRb2_nn, (posx_labelNIRb1_nn+posx_labelNIRb1_crab_nn-posx_labelNIRb2_nn-x_su_labelNIR_nn+1e-10)*1e3;
 
-! get the uncrabbed momenta to compute the crossing angle and plane
+  ! get the uncrabbed momenta to compute the crossing angle and plane
   px_labelNIRb1_nn = table(twissb1,bbmk_labelNIRb1_nn,px);
   px_labelNIRb2_nn = table(twissb2,bbmk_labelNIRb2_nn,px);
   py_labelNIRb1_nn = table(twissb1,bbmk_labelNIRb1_nn,py);
@@ -424,7 +421,7 @@ PRINT_LENS6D(label,NIR,nn,flag) : macro = {
   dlt_px=px_labelNIRb1_nn-px_labelNIRb2_nn;
   dlt_py=py_labelNIRb1_nn-py_labelNIRb2_nn;
 
-! Compute crossing angle and crossing plane
+  ! Compute crossing angle and crossing plane
   bbbmacros_absphi = sqrt(dlt_px^2 + dlt_py^2) / 2.0;
   if (bbbmacros_absphi < 1e-20)
       {xang_labelNIR_nn = bbbmacros_absphi;xplane_labelNIR_nn = 0.0;}
@@ -492,122 +489,116 @@ PRINT_LENS6D(label,NIR,nn,flag) : macro = {
           table(twissb2,bbmk_labelNIRb2_nn,sig23)*1e6, 
           table(twissb2,bbmk_labelNIRb2_nn,sig24)*1e6,
           1.0/nho_IRnir; ! charge per slice
-!  printf, text="CRABBING %F %F %F %F", value = posx_labelNIRb1_crab_nn, posx_labelNIRb2_crab_nn, posy_labelNIRb1_crab_nn, posy_labelNIRb2_crab_nn;
+  !  printf, text="CRABBING %F %F %F %F", value = posx_labelNIRb1_crab_nn, posx_labelNIRb2_crab_nn, posy_labelNIRb1_crab_nn, posy_labelNIRb2_crab_nn;
 };
 
-
 INSTALL_SINGLE_BB_LENS(label,nn,where,origin) : macro = {
-
-install,element=bb_label_nn,at=where,from=origin;
-
+!!! Install a single BB lens
+  install,element=bb_label_nn,at=where,from=origin;
 };
 
 INSTALL_BB_LENS(BIM) : macro = {
+!!! Install the BB lenses
+  !option,warn,info;
 
-!option,warn,info;
+  seqedit,sequence=lhcBIM;
 
-seqedit,sequence=lhcBIM;
+  ! Head-on in IR1
+  if (on_ho1<>0)
+  {where= 1.e-9;exec INSTALL_SINGLE_BB_LENS(ho1BIM,0,where,IP1);
+  n=1;while ( n <= (nho_IR1/2)) {exec HOLOC(1,$n);
+                                  exec INSTALL_SINGLE_BB_LENS(ho.L1BIM,$n,wherem,IP1.L1);
+                                  exec INSTALL_SINGLE_BB_LENS(ho.R1BIM,$n,wherep,IP1);
+                                  n=n+1;};};
+  ! Head-on in IR2
+  if (on_ho2<>0)
+  {where= 1.e-9;exec INSTALL_SINGLE_BB_LENS(ho2BIM,0,where,IP2);
+  n=1;while ( n <= (nho_IR2/2)) {exec HOLOC(2,$n);
+                                  exec INSTALL_SINGLE_BB_LENS(ho.L2BIM,$n,wherem,IP2);
+                                  exec INSTALL_SINGLE_BB_LENS(ho.R2BIM,$n,wherep,IP2);
+                                  n=n+1;};};
+  
+  ! Head-on in IR5
+  if (on_ho5<>0)
+  {where= 1.e-9;exec INSTALL_SINGLE_BB_LENS(ho5BIM,0,where,IP5);
+  n=1;while ( n <= (nho_IR5/2)) {exec HOLOC(5,$n);
+                                  exec INSTALL_SINGLE_BB_LENS(ho.L5BIM,$n,wherem,IP5);
+                                  exec INSTALL_SINGLE_BB_LENS(ho.R5BIM,$n,wherep,IP5);
+                                  n=n+1;};};
 
-! Head-on in IR1
-if (on_ho1<>0)
-{where= 1.e-9;exec INSTALL_SINGLE_BB_LENS(ho1BIM,0,where,IP1);
- n=1;while ( n <= (nho_IR1/2)) {exec HOLOC(1,$n);
-                                exec INSTALL_SINGLE_BB_LENS(ho.L1BIM,$n,wherem,IP1.L1);
-                                exec INSTALL_SINGLE_BB_LENS(ho.R1BIM,$n,wherep,IP1);
-                                n=n+1;};};
-! Head-on in IR2
-if (on_ho2<>0)
-{where= 1.e-9;exec INSTALL_SINGLE_BB_LENS(ho2BIM,0,where,IP2);
- n=1;while ( n <= (nho_IR2/2)) {exec HOLOC(2,$n);
-                                exec INSTALL_SINGLE_BB_LENS(ho.L2BIM,$n,wherem,IP2);
-                                exec INSTALL_SINGLE_BB_LENS(ho.R2BIM,$n,wherep,IP2);
-                                n=n+1;};};
- 
-! Head-on in IR5
-if (on_ho5<>0)
-{where= 1.e-9;exec INSTALL_SINGLE_BB_LENS(ho5BIM,0,where,IP5);
- n=1;while ( n <= (nho_IR5/2)) {exec HOLOC(5,$n);
-                                exec INSTALL_SINGLE_BB_LENS(ho.L5BIM,$n,wherem,IP5);
-                                exec INSTALL_SINGLE_BB_LENS(ho.R5BIM,$n,wherep,IP5);
-                                n=n+1;};};
+  ! Head-on in IR8
+  if (on_ho8<>0)
+  {where= 1.e-9;exec INSTALL_SINGLE_BB_LENS(ho8BIM,0,where,IP8);
+  n=1;while ( n <= (nho_IR8/2)) {exec HOLOC(8,$n);
+                                  exec INSTALL_SINGLE_BB_LENS(ho.L8BIM,$n,wherem,IP8);
+                                  exec INSTALL_SINGLE_BB_LENS(ho.R8BIM,$n,wherep,IP8);
+                                  n=n+1;};};
+  
+  ! Long-range in left of IP1
+  if (on_lr1l<>0)
+  {n=1;while ( n <= npara_1) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.L1BIM,$n,where,IP1.L1);n=n+1;};};
 
-! Head-on in IR8
-if (on_ho8<>0)
-{where= 1.e-9;exec INSTALL_SINGLE_BB_LENS(ho8BIM,0,where,IP8);
- n=1;while ( n <= (nho_IR8/2)) {exec HOLOC(8,$n);
-                                exec INSTALL_SINGLE_BB_LENS(ho.L8BIM,$n,wherem,IP8);
-                                exec INSTALL_SINGLE_BB_LENS(ho.R8BIM,$n,wherep,IP8);
-                                n=n+1;};};
- 
-! Long-range in left of IP1
-if (on_lr1l<>0)
-{n=1;while ( n <= npara_1) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.L1BIM,$n,where,IP1.L1);n=n+1;};};
-
-! Long-range in right of IP1
-if (on_lr1r<>0)
-{n=1;while ( n <= npara_1) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.R1BIM,$n,where,IP1);n=n+1;};};
+  ! Long-range in right of IP1
+  if (on_lr1r<>0)
+  {n=1;while ( n <= npara_1) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.R1BIM,$n,where,IP1);n=n+1;};};
 
 
-! Long-range in left of IP2
-if (on_lr2l<>0)
-{n=1;while ( n <= npara_2) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.L2BIM,$n,where,IP2);n=n+1;};};
+  ! Long-range in left of IP2
+  if (on_lr2l<>0)
+  {n=1;while ( n <= npara_2) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.L2BIM,$n,where,IP2);n=n+1;};};
 
-! Long-range in right of IP2
-if (on_lr2r<>0)
-{n=1;while ( n <= npara_2) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.R2BIM,$n,where,IP2);n=n+1;};};
+  ! Long-range in right of IP2
+  if (on_lr2r<>0)
+  {n=1;while ( n <= npara_2) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.R2BIM,$n,where,IP2);n=n+1;};};
 
-! Long-range in left of IP5
-if (on_lr5l<>0)
-{n=1;while ( n <= npara_5) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.L5BIM,$n,where,IP5);n=n+1;};};
+  ! Long-range in left of IP5
+  if (on_lr5l<>0)
+  {n=1;while ( n <= npara_5) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.L5BIM,$n,where,IP5);n=n+1;};};
 
-! Long-range in right of IP5
-if (on_lr5r<>0)
-{n=1;while ( n <= npara_5) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.R5BIM,$n,where,IP5);n=n+1;};};
+  ! Long-range in right of IP5
+  if (on_lr5r<>0)
+  {n=1;while ( n <= npara_5) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.R5BIM,$n,where,IP5);n=n+1;};};
 
-! Long-range in left of IP8
-if (on_lr8l<>0)
-{n=1;while ( n <= npara_8) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.L8BIM,$n,where,IP8);n=n+1;};};
+  ! Long-range in left of IP8
+  if (on_lr8l<>0)
+  {n=1;while ( n <= npara_8) {where=-n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.L8BIM,$n,where,IP8);n=n+1;};};
 
-! Long-range in right of IP8
-if (on_lr8r<>0)
-{n=1;while ( n <= npara_8) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.R8BIM,$n,where,IP8);n=n+1;};};
+  ! Long-range in right of IP8
+  if (on_lr8r<>0)
+  {n=1;while ( n <= npara_8) {where= n*b_h_dist;exec INSTALL_SINGLE_BB_LENS(par.R8BIM,$n,where,IP8);n=n+1;};};
 
-endedit;
+  endedit;
 
-!option,-warn,-info;
-
+  !option,-warn,-info;
 };
 
+REMOVE_BB_LENS : macro = {
+!!! Remove BB marker
+  option,warn,info;
 
-REMOVE_BB_LENS : macro =
-{
+  seqedit,sequence=lhcb1;
+  select,flag=seqedit,clear;
+  select,flag=seqedit,class=beambeam;
+  remove,element=SELECTED;
+  endedit;
 
-!! Remove beam-beam marker
+  seqedit,sequence=lhcb2;
+  select,flag=seqedit,clear;
+  select,flag=seqedit,class=beambeam;
+  remove,element=SELECTED;
+  endedit;
 
-option,warn,info;
-
-seqedit,sequence=lhcb1;
-select,flag=seqedit,clear;
-select,flag=seqedit,class=beambeam;
-remove,element=SELECTED;
-endedit;
-
-seqedit,sequence=lhcb2;
-select,flag=seqedit,clear;
-select,flag=seqedit,class=beambeam;
-remove,element=SELECTED;
-endedit;
-
-option,-warn,-info;
-
+  option,-warn,-info;
 };
 
 SELECT_BB_LENS(label,nn) : macro = {
+!!! Select a BB lens
   select,flag=seqedit,pattern="^label_nn$";
   print, text="label_nn selected";
 };
 
 REMOVE_BB_LENS_FILL_SCHEME : macro(BIM, NIR, BUNCHES, EMPTY, POS) = {
+!!! Remove lens for a particular filling scheme
   printf, text="Removing long ranges for %gb%ge, considering bunch %g in the train", value = BUNCHES, EMPTY, POS; 
   seqedit,sequence=lhcbBIM;
   select,flag=seqedit,clear;
@@ -638,203 +629,197 @@ REMOVE_BB_LENS_FILL_SCHEME : macro(BIM, NIR, BUNCHES, EMPTY, POS) = {
   print, text="Selected long ranges removed"; 
 };
 
-
 PLOT_BB_SEP(NIR,nn) : macro ={
+!!! plot the BB separation
+  delete,table=twissb1;
+  delete,table=twissb2;
+  delete,table=sub1;
+  delete,table=sub2;
+  delete,table=beambeamsep;
 
-delete,table=twissb1;
-delete,table=twissb2;
-delete,table=sub1;
-delete,table=sub2;
-delete,table=beambeamsep;
-
-itest=NIR;
-if(itest==1) {xsu0=-0.097;};
-if(itest==2) {xsu0= 0.097;};
-if(itest==5) {xsu0=-0.097;};
-if(itest==8) {xsu0= 0.097;};
-
-
-use,sequence=lhcb1;
-select,flag=twiss,clear;
-select,flag=twiss,class=bbmarker,range=e.ds.lNIR.b1/s.ds.rNIR.b1,
-                  column=name,s,betx,bety,x,y;
-twiss,file="temp/twiss.tfs";readmytable,file="temp/twiss.tfs",table=twissb1;
-
-use,sequence=lhcb1,range=e.ds.lNIR.b1/s.ds.rNIR.b1;
-select,flag=survey,clear;
-select,flag=survey,class=bbmarker;
-survey,x0=xsu0,file="temp/surveyaux.tfs";
-readmytable,file="temp/surveyaux.tfs",table=sub1;
+  itest=NIR;
+  if(itest==1) {xsu0=-0.097;};
+  if(itest==2) {xsu0= 0.097;};
+  if(itest==5) {xsu0=-0.097;};
+  if(itest==8) {xsu0= 0.097;};
 
 
-use,sequence=lhcb2;
-select,flag=twiss,clear;
-select,flag=twiss,class=bbmarker,range=e.ds.lNIR.b2/s.ds.rNIR.b2,
-                  column=name,s,betx,bety,x,y;
-twiss,file="temp/twiss.tfs";readmytable,file="temp/twiss.tfs",table=twissb2;
+  use,sequence=lhcb1;
+  select,flag=twiss,clear;
+  select,flag=twiss,class=bbmarker,range=e.ds.lNIR.b1/s.ds.rNIR.b1,
+                    column=name,s,betx,bety,x,y;
+  twiss,file="temp/twiss.tfs";readmytable,file="temp/twiss.tfs",table=twissb1;
 
-use,sequence=lhcb2,range=e.ds.lNIR.b2/s.ds.rNIR.b2;
-select,flag=survey,clear;
-select,flag=survey,class=bbmarker;
-survey,x0=-xsu0,file="temp/surveyaux.tfs";
-readmytable,file="temp/surveyaux.tfs",table=sub2;
+  use,sequence=lhcb1,range=e.ds.lNIR.b1/s.ds.rNIR.b1;
+  select,flag=survey,clear;
+  select,flag=survey,class=bbmarker;
+  survey,x0=xsu0,file="temp/surveyaux.tfs";
+  readmytable,file="temp/surveyaux.tfs",table=sub1;
+
+
+  use,sequence=lhcb2;
+  select,flag=twiss,clear;
+  select,flag=twiss,class=bbmarker,range=e.ds.lNIR.b2/s.ds.rNIR.b2,
+                    column=name,s,betx,bety,x,y;
+  twiss,file="temp/twiss.tfs";readmytable,file="temp/twiss.tfs",table=twissb2;
+
+  use,sequence=lhcb2,range=e.ds.lNIR.b2/s.ds.rNIR.b2;
+  select,flag=survey,clear;
+  select,flag=survey,class=bbmarker;
+  survey,x0=-xsu0,file="temp/surveyaux.tfs";
+  readmytable,file="temp/surveyaux.tfs",table=sub2;
 
 
 
-ltab=table(twissb1,tablelength);
+  ltab=table(twissb1,tablelength);
 
-create,table=beambeamsep,column=loc,sepx,sepy,sepxb1,sepyb1,sepxb2,sepyb2;
+  create,table=beambeamsep,column=loc,sepx,sepy,sepxb1,sepyb1,sepxb2,sepyb2;
 
-loc0  =table(sub1,bbmk_hoNIRb1_0,s);
-imax  =nn;
-locmax=nn*b_h_dist+0.1;
-n=1;while(n<=ltab) {exec FILTABSEP($n);n=n+1;};
+  loc0  =table(sub1,bbmk_hoNIRb1_0,s);
+  imax  =nn;
+  locmax=nn*b_h_dist+0.1;
+  n=1;while(n<=ltab) {exec FILTABSEP($n);n=n+1;};
 
-!write,table=beambeamsep;
+  !write,table=beambeamsep;
 
-PLOT,style=100,table=beambeamsep,title="H/V Beam-beam sep. for beam1 [sigma]",symbol=3,noversion=true,haxis=loc,
-     vaxis=sepxb1,sepyb1;
-PLOT,style=100,table=beambeamsep,title="H/V Beam-beam sep. for beam2 [sigma]",symbol=3,noversion=true,haxis=loc,
-     vaxis=sepxb2,sepyb2;
-PLOT,style=100,table=beambeamsep,title="H/V Beam-beam sep. [mm]",symbol=3,noversion=true,haxis=loc,
-     vaxis=sepx,sepy;
-
+  PLOT,style=100,table=beambeamsep,title="H/V Beam-beam sep. for beam1 [sigma]",symbol=3,noversion=true,haxis=loc,
+      vaxis=sepxb1,sepyb1;
+  PLOT,style=100,table=beambeamsep,title="H/V Beam-beam sep. for beam2 [sigma]",symbol=3,noversion=true,haxis=loc,
+      vaxis=sepxb2,sepyb2;
+  PLOT,style=100,table=beambeamsep,title="H/V Beam-beam sep. [mm]",symbol=3,noversion=true,haxis=loc,
+      vaxis=sepx,sepy;
 };
 
 FILTABSEP(nn) : macro = {
-
-loc        =table(sub1,s,nn)-loc0;
-sepx   =abs(table(twissb2,x,nn)-table(twissb1,x,nn)+table(sub2,x,nn)-table(sub1,x,nn))*1000.;
-sepy   =abs(table(twissb2,y,nn)-table(twissb1,y,nn))*1000.;
-sepxb1 =sepx/sqrt(beamx*table(twissb1,betx,nn))/1000.;
-sepyb1 =sepy/sqrt(beamy*table(twissb1,bety,nn))/1000.;
-sepxb2 =sepx/sqrt(beamx*table(twissb2,betx,nn))/1000.;
-sepyb2 =sepy/sqrt(beamy*table(twissb2,bety,nn))/1000.;
-if (abs(loc)<locmax){fill,table=beambeamsep;};
-
+!!! fill separation table
+  loc        =table(sub1,s,nn)-loc0;
+  sepx   =abs(table(twissb2,x,nn)-table(twissb1,x,nn)+table(sub2,x,nn)-table(sub1,x,nn))*1000.;
+  sepy   =abs(table(twissb2,y,nn)-table(twissb1,y,nn))*1000.;
+  sepxb1 =sepx/sqrt(beamx*table(twissb1,betx,nn))/1000.;
+  sepyb1 =sepy/sqrt(beamy*table(twissb1,bety,nn))/1000.;
+  sepxb2 =sepx/sqrt(beamx*table(twissb2,betx,nn))/1000.;
+  sepyb2 =sepy/sqrt(beamy*table(twissb2,bety,nn))/1000.;
+  if (abs(loc)<locmax){fill,table=beambeamsep;};
 };
 
-
 PRINT_BB_lens_param(label,NIR,BIM,nn) : macro = {
-loc=table(twiss,bb_labelNIRBIM_nn,s);
-xma=bb_labelNIRBIM_nn->xma*1000.;
-yma=bb_labelNIRBIM_nn->yma*1000.;
-sigx=bb_labelNIRBIM_nn->sigx*1000.;
-sigy=bb_labelNIRBIM_nn->sigy*1000.;
+!!! prepare the BB lens parameter for the printing
+  loc=table(twiss,bb_labelNIRBIM_nn,s);
+  xma=bb_labelNIRBIM_nn->xma*1000.;
+  yma=bb_labelNIRBIM_nn->yma*1000.;
+  sigx=bb_labelNIRBIM_nn->sigx*1000.;
+  sigy=bb_labelNIRBIM_nn->sigy*1000.;
 };
 
 PRINT_BB_table(BIM) : macro = {
+!!! print BB table
+  delete,table=BBtable_BIM;
+  create,table=BBtable_BIM,column=loc,xma,yma,sigx,sigy;
 
-delete,table=BBtable_BIM;
-create,table=BBtable_BIM,column=loc,xma,yma,sigx,sigy;
+  delete,table=twissBIM;
+  select,flag=twiss,clear;
+  select,flag=twiss,class=beambeam,column=name,s;
+  use,sequence=lhcBIM;twiss,file="temp/twiss.tfs";
+  readmytable,file="temp/twiss.tfs",table=twissBIM;
 
-delete,table=twissBIM;
-select,flag=twiss,clear;
-select,flag=twiss,class=beambeam,column=name,s;
-use,sequence=lhcBIM;twiss,file="temp/twiss.tfs";
-readmytable,file="temp/twiss.tfs",table=twissBIM;
+  n=1;while(n<=npara_5) {exec PRINT_BB_lens_param(par.L,5,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
+  exec PRINT_BB_lens_param(ho.L,5,BIM,2);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho.L,5,BIM,1);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho,5,BIM,0);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho.R,5,BIM,1);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho.R,5,BIM,2);fill,table=BBtable_BIM;
+  n=1;while(n<=npara_5) {exec PRINT_BB_lens_param(par.R,5,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
 
-n=1;while(n<=npara_5) {exec PRINT_BB_lens_param(par.L,5,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
-exec PRINT_BB_lens_param(ho.L,5,BIM,2);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho.L,5,BIM,1);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho,5,BIM,0);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho.R,5,BIM,1);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho.R,5,BIM,2);fill,table=BBtable_BIM;
-n=1;while(n<=npara_5) {exec PRINT_BB_lens_param(par.R,5,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
+  n=1;while(n<=npara_8) {exec PRINT_BB_lens_param(par.L,8,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
+  exec PRINT_BB_lens_param(ho.L,8,BIM,2);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho.L,8,BIM,1);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho,8,BIM,0);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho.R,8,BIM,1);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho.R,8,BIM,2);fill,table=BBtable_BIM;
+  n=1;while(n<=npara_8) {exec PRINT_BB_lens_param(par.R,8,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
 
-n=1;while(n<=npara_8) {exec PRINT_BB_lens_param(par.L,8,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
-exec PRINT_BB_lens_param(ho.L,8,BIM,2);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho.L,8,BIM,1);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho,8,BIM,0);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho.R,8,BIM,1);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho.R,8,BIM,2);fill,table=BBtable_BIM;
-n=1;while(n<=npara_8) {exec PRINT_BB_lens_param(par.R,8,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
+  n=1;while(n<=npara_1) {exec PRINT_BB_lens_param(par.L,1,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
+  exec PRINT_BB_lens_param(ho.L,1,BIM,2);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho.L,1,BIM,1);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho,1,BIM,0);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho.R,1,BIM,1);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho.R,1,BIM,2);fill,table=BBtable_BIM;
+  n=1;while(n<=npara_1) {exec PRINT_BB_lens_param(par.R,1,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
 
-n=1;while(n<=npara_1) {exec PRINT_BB_lens_param(par.L,1,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
-exec PRINT_BB_lens_param(ho.L,1,BIM,2);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho.L,1,BIM,1);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho,1,BIM,0);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho.R,1,BIM,1);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho.R,1,BIM,2);fill,table=BBtable_BIM;
-n=1;while(n<=npara_1) {exec PRINT_BB_lens_param(par.R,1,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
+  n=1;while(n<=npara_2) {exec PRINT_BB_lens_param(par.L,2,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
+  exec PRINT_BB_lens_param(ho.L,2,BIM,2);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho.L,2,BIM,1);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho,2,BIM,0);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho.R,2,BIM,1);fill,table=BBtable_BIM;
+  exec PRINT_BB_lens_param(ho.R,2,BIM,2);fill,table=BBtable_BIM;
+  n=1;while(n<=npara_2) {exec PRINT_BB_lens_param(par.R,2,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
 
-n=1;while(n<=npara_2) {exec PRINT_BB_lens_param(par.L,2,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
-exec PRINT_BB_lens_param(ho.L,2,BIM,2);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho.L,2,BIM,1);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho,2,BIM,0);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho.R,2,BIM,1);fill,table=BBtable_BIM;
-exec PRINT_BB_lens_param(ho.R,2,BIM,2);fill,table=BBtable_BIM;
-n=1;while(n<=npara_2) {exec PRINT_BB_lens_param(par.R,2,BIM,$n);fill,table=BBtable_BIM;n=n+1;};
-
-write,table=BBtable_BIM,file=temp/BBtable_BIM.tfs;
-
+  write,table=BBtable_BIM,file=temp/BBtable_BIM.tfs;
 };
 
 MAKEFOOTPRINT(BIM) : macro = {
+!!! make tune footprint
+  seqedit,sequence=lhcBIM;
+  cycle,start=IP3;
+  flatten;
+  endedit;
 
-seqedit,sequence=lhcBIM;
-cycle,start=IP3;
-flatten;
-endedit;
-
-use,sequence=lhcBIM;
-!option,trace;
-small=0.05;
-big=sqrt(1.-small^2);
-track;
-xs=small; ys=small;
-value,xs,ys;
-start,fx=xs,fy=ys;  // zero amplitude
-n=1; // sigma multiplier
-m=0; // angle multiplier
-while (n <= nsigmax)
-{
-  angle = 15*m*pi/180;
-  if (m == 0) {xs=n*big; ys=n*small;}
-  elseif (m == 6) {xs=n*small; ys=n*big;}
-  else
-  {
-    xs=n*cos(angle);
-    ys=n*sin(angle);
-  }
+  use,sequence=lhcBIM;
+  !option,trace;
+  small=0.05;
+  big=sqrt(1.-small^2);
+  track;
+  xs=small; ys=small;
   value,xs,ys;
-  start,fx=xs,fy=ys;
-  m=m+1;
-  if (m == 7) { m=0; n=n+1;}
-};
-dynap,fastune,turns=1024;
-endtrack;
+  start,fx=xs,fy=ys;  // zero amplitude
+  n=1; // sigma multiplier
+  m=0; // angle multiplier
+  while (n <= nsigmax)
+  {
+    angle = 15*m*pi/180;
+    if (m == 0) {xs=n*big; ys=n*small;}
+    elseif (m == 6) {xs=n*small; ys=n*big;}
+    else
+    {
+      xs=n*cos(angle);
+      ys=n*sin(angle);
+    }
+    value,xs,ys;
+    start,fx=xs,fy=ys;
+    m=m+1;
+    if (m == 7) { m=0; n=n+1;}
+  };
+  dynap,fastune,turns=1024;
+  endtrack;
 
-system, "rm -rf temp/dynap";
-system, "rm -rf temp/dynaptune";
-system, "rm -rf temp/footprint";
-write,table=dynap,file="temp/dynap";
-write,table=dynaptune,file="temp/dynaptune";
-system,"/afs/cern.ch/work/f/frs/public/slap/bin/foot < temp/dynaptune > temp/footprint";
-!system,"foot < temp/dynaptune > temp/footprint";
+  system, "rm -rf temp/dynap";
+  system, "rm -rf temp/dynaptune";
+  system, "rm -rf temp/footprint";
+  write,table=dynap,file="temp/dynap";
+  write,table=dynaptune,file="temp/dynaptune";
+  system,"/afs/cern.ch/work/f/frs/public/slap/bin/foot < temp/dynaptune > temp/footprint";
+  !system,"foot < temp/dynaptune > temp/footprint";
 
-!/*
-seqedit,sequence=lhcBIM;
-cycle,start=IP3;
-endedit;
-!*/
-
+  !/*
+  seqedit,sequence=lhcBIM;
+  cycle,start=IP3;
+  endedit;
+  !*/
 };
 
 PLOTFOOTPRINT(BIM,qxmin,qxmax,qymin,qymax) : macro = {
-
-use,sequence=lhcBIM;
-delete,table=foottable;
-create,table=foottable,column=dQ1,dQ2;
-system,"slhc/beambeam/fillfoottable";
-call,file="temp/fillfoottable.madx";
-plot,style=100,noversion=true,nolegend=true,title=Footprint-BIM,table=foottable,
-     colour=2,haxis=dq1,vaxis=dQ2,hmin=qxmin,hmax=qxmax,vmin=qymin,vmax=qymax;
-
-
+!!! plot tune footprint
+  use,sequence=lhcBIM;
+  delete,table=foottable;
+  create,table=foottable,column=dQ1,dQ2;
+  system,"slhc/beambeam/fillfoottable";
+  call,file="temp/fillfoottable.madx";
+  plot,style=100,noversion=true,nolegend=true,title=Footprint-BIM,table=foottable,
+      colour=2,haxis=dq1,vaxis=dQ2,hmin=qxmin,hmax=qxmax,vmin=qymin,vmax=qymax;
 };
 
 LEVEL_OFFSET_COMMON(TARGET_LUMI,nIP): macro = {
+!!! Offset leveling
   !!! The number of bunch interactions should be available in the mask as:
   ! nco_IP1= 2064;
   ! nco_IP5= nco_IP1;
@@ -880,16 +865,16 @@ LEVEL_OFFSET_COMMON(TARGET_LUMI,nIP): macro = {
   };
 };
 
-LEVEL_PARALLEL_OFFSET_FOR(TARGET_LUMI, nIP): macro = 
-{
+LEVEL_PARALLEL_OFFSET_FOR(TARGET_LUMI, nIP): macro = {
+!!! Auxiliary macro for offset leveling in the parallel plane
   exec LEVEL_OFFSET_COMMON(TARGET_LUMI,nIP);
   halonIP = 2*offlvl_log;
   printf, text="Set%g halo to %f sigma, the lumi is reduced from %F Hz/cm2 to %F Hz/cm2", value=nIP,halonIP,offlvl_L0,TARGET_LUMI;
 };
 
 LEVEL_TRANSVERSE_OFFSET_FOR(TARGET_LUMI, nIP): macro = {
+!!! Auxiliary macro for offset leveling in the transverse plane
   exec LEVEL_OFFSET_COMMON(TARGET_LUMI,nIP);
   halonIP = 2*offlvl_log * offlvl_sigEff/offlvl_sigX;
   printf, text="Set%g halo to %f sigma, the lumi is reduced from %F Hz/cm2 to %F Hz/cm2", value=nIP,halonIP,offlvl_L0,TARGET_LUMI;
 };
-
