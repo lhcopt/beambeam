@@ -15,46 +15,43 @@ beambeam6dip = 60;
 
 DEFINE_BB_PARAM : macro =
 {
+  !!!Define main bean-beam parameter
 
-!!!Define main bean-beam parameter
+  if(mylhcbeam==1)
+  {
+  beamx = beam%lhcb2->ex;
+  beamy = beam%lhcb2->ey;
+  sigz  = beam%lhcb1->sigt;
+  sige  = beam%lhcb1->sige;
+  };
+  if(mylhcbeam==2)
+  {
+  beamx = beam%lhcb1->ex;
+  beamy = beam%lhcb1->ey;
+  sigz  = beam%lhcb2->sigt;
+  sige  = beam%lhcb2->sige;
+  };
 
-if(mylhcbeam==1)
-{
-beamx = beam%lhcb2->ex;
-beamy = beam%lhcb2->ey;
-sigz  = beam%lhcb1->sigt;
-sige  = beam%lhcb1->sige;
-};
-if(mylhcbeam==2)
-{
-beamx = beam%lhcb1->ex;
-beamy = beam%lhcb1->ey;
-sigz  = beam%lhcb2->sigt;
-sige  = beam%lhcb2->sige;
-};
+  ho_charge := 1.0d0;
+  lr_charge := 1.0d0;
 
-ho_charge := 1.0d0;
-lr_charge := 1.0d0;
+  !!!Define splitting of the head-on beam-beam lens
+  system,"rm -f temp/sliceho.res";
+  system,"rm -f temp/sliceho.input";
+  option,-echo, -info ;assign, echo=temp/sliceho.res;
+  value,nho_IR1,nho_IR2,nho_IR5,nho_IR8;
+  assign,echo=terminal ;
+  system,"awk  '{print $3}'  temp/sliceho.res >  temp/sliceho.input";
+  system,"/afs/cern.ch/eng/lhc/optics/beambeam_macros/headonslice";
 
-!!!Define splitting of the head-on beam-beam lens
-system,"rm -f temp/sliceho.res";
-system,"rm -f temp/sliceho.input";
-option,-echo, -info ;assign, echo=temp/sliceho.res;
-value,nho_IR1,nho_IR2,nho_IR5,nho_IR8;
-assign,echo=terminal ;
-system,"awk  '{print $3}'  temp/sliceho.res >  temp/sliceho.input";
-system,"/afs/cern.ch/eng/lhc/optics/beambeam_macros/headonslice";
+  call,file="temp/sliceho.madx";
 
-call,file="temp/sliceho.madx";
+  !!!Define spacing between parasitic encounters
+  b_h_dist := LHCLENGTH/HRF400 * 10./2. * b_t_dist / 25.;
 
-!!!Define spacing between parasitic encounters
-b_h_dist := LHCLENGTH/HRF400 * 10./2. * b_t_dist / 25.;
-
-
-value,beamx,beamy,sigz,sige;
-value,ho_charge;
-value,lr_charge,b_h_dist;
-
+  value,beamx,beamy,sigz,sige;
+  value,ho_charge;
+  value,lr_charge,b_h_dist;
 };
 
 CALCULATE_XSCHEME(halo1,halo2,halo5,halo8) : macro =
