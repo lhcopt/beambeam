@@ -99,7 +99,7 @@ INSTALL_SINGLE_BB_MARK(label,BIM,nn,where,origin) : macro = {
 };
 
 HOLOC(NIR,NHO) : macro = {
-!!! Auxiliary variable difinel HO slices location
+!!! Auxiliary variable difining HO slices location
   wherep= long_irNIR_NHO;
   wherem=-long_irNIR_NHO;
 };
