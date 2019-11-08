@@ -1,0 +1,18 @@
+In order to run the 000_test_bb_separation with python on LXPLUS here you are the following tricks:
+
+! connect with LXPLUS with X11 forwarding
+ssh -Y lxplus
+
+!sourcing a recent py3 distribution
+source  /cvmfs/sft.cern.ch/lcg/views/LCG_96python3/x86_64-centos7-gcc8-opt/setup.sh
+
+! definition of the sixtrack to use in LXPLUS
+export PATH=/afs/cern.ch/project/sixtrack/releases/:$PATH
+
+! you have to copy the following folder content in a different folder in order to have R/W rights
+cd /afs/cern.ch/eng/lhc/optics/beambeam_macros/additional_tools/check_strong_beam_position
+
+! installation of needed packages
+pip install --user pysixtrack
+pip install --user dataclasses
+pip install --user sixtracktools
