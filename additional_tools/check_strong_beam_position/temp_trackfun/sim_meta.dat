@@ -1,0 +1,36 @@
+# SixTrack Simulation Meta Data
+################################################################################
+SixTrackVersion                  : 5.2.5
+ReleaseDate                      : 26.04.2019
+GitHash                          : 9c2159cd03165e8ab07084cdba3716f061f37179
+Compiler                         : gfortran
+Features                         : TILT FAST STF CRLIBM LIBARCHIVE
+StartTime                        : 2019-11-11 09:58:54.655
+NumParticles                     :         100
+NumTurns                         :           2
+NumSingleElements                :          11
+NumBlockElements                 :           1
+NumStructureElements             :          15
+MultiColStructBlock              : false
+MachineLengthInput               :  2.0000000000000000E+001
+MachineLengthAccum               :  2.0000000000000000E+001
+MachineLengthStruct              :  2.0000000000000000E+001
+TrackingMethod                   : Thin 6D
+4D_ClosedOrbitCorr_x             :  0.0000000000000000E+000
+4D_ClosedOrbitCorr_xp            :  0.0000000000000000E+000
+4D_ClosedOrbitCorr_y             :  0.0000000000000000E+000
+4D_ClosedOrbitCorr_yp            :  0.0000000000000000E+000
+6D_ClosedOrbitCorr_x             :  5.0913582026079809E-012
+6D_ClosedOrbitCorr_xp            :  4.2915613836009679E-013
+6D_ClosedOrbitCorr_y             :  2.3331586432471522E-022
+6D_ClosedOrbitCorr_yp            : -2.8764296242902376E-023
+6D_ClosedOrbitCorr_sigma         : -5.5253244611020157E-008
+6D_ClosedOrbitCorr_dp            :  3.7854367652085780E-015
+SymplecticityDeviation           : -1.1842378929335016E-015
+NumParticleTurns                 :         200
+AvgParticlesPerTurn              :         100.000
+CR_RestartCount                  :           0
+CR_KillSwitchCount               :           0
+PeakDynamicMemAlloc[MiB]         :           5.070
+NumDynamicMemAllocCalls          :         363
+# END
