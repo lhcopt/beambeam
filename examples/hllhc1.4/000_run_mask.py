@@ -34,51 +34,10 @@ mask_content = mask_content.replace(r'%CHROM%', f'{chromaticity:e}')
 mask_content = mask_content.replace(r'%XING', f'{xing_angle_urad:e}')
 mask_content = mask_content.replace(r'%SEEDRAN', f'{seedran:d}')
 # %% Dump the unmasked mask on file
-with open(fname_mask.split('.mask')[0]+'_unmask.mask', 'w') as fid:
+unmask_fname = fname_mask.split('.mask')[0]+'_unmask.mask'
+with open(unmask_fname, 'w') as fid:
     fid.write(mask_content)
 
-# %% split the mask
-# I am assuming that the start of the file is '! %%'
-assert(mask_content[0:4]=="! %%")
-aux=mask_content.split("! %%")
-title=[]
-body=[]
-for i in aux:
-    title.append(i.split('\n')[0])
-    body.append("".join([a+'\n' for a in i.split('\n')[1:]]))
-# I remove the first (empty line, see assertion above)
-title=title[1:]
-body=body[1:]
-# %% built a pandas df
-import pandas as pd
-myDF=pd.DataFrame(body,index=title, columns=['Code string'])
-
-# %% Run MADX
-madx = Madx()
-
-# %%
-import time
-myGlobals=[]
-mySmallDF=myDF
-myString=''
-for block in mySmallDF.iterrows():
-    print(block[0])
-    start_time = time.time()
-    myString=myString+ '! %%' +block[0]+ '\n' + block[1]['Code string'][0:-1]
-    with madx.batch():
-        madx.input('! %%' +block[0]+ '\n' + block[1]['Code string'][0:-1])
-    execution_time_s=time.time()-start_time
-    myDict={}
-    myDict=dict(madx.globals)
-    myDict['execution time [s]']=execution_time_s
-    myGlobals.append(myDict)
-profileDF=pd.DataFrame(myGlobals, index=mySmallDF.index)
-# %%
-with open('inverse.mask', 'w') as fid:
-    fid.write(myString)
-# %%
-# %%
-madx.input(aux[2])
-
+os.system('madx '+unmask_fname)
 
 # %%
