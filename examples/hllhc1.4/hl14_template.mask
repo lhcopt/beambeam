@@ -14,6 +14,7 @@
   system, "ln -fns /afs/cern.ch/eng/lhc/optics/HLLHCV1.4 slhc";
   system, "ln -fns /afs/cern.ch/eng/lhc/optics/errors/0705 wise";
   system, "ln -fns /afs/cern.ch/eng/lhc/optics/V6.503/WISE/After_sector_3-4_repair fidel";
+  system, "ln -fns /afs/cern.ch/eng/lhc/optics/beambeam_macros bbtoolkit";
   option, -echo,-info;
 
 ! %% Calling main macros file
@@ -74,9 +75,9 @@
   I_MO=%OCT%;
 ! %% Set BB flag
   !General switch to select collision (0/1)
-  ON_COLLISION:=0;
+  ON_COLLISION:=1;
   !General switch to install bb lens (0/1)
-  ON_BB_SWITCH:=0;
+  ON_BB_SWITCH:=1;
 ! %% Set bunch separation 
   ! TODO: I think we should start from RF consideration
   b_t_dist :=25.;  !bunch separation [ns]
@@ -280,7 +281,7 @@
   !     Beam-beam encounters installation
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
   if( ON_BB_SWITCH == 1){
-    call,file="slhc/beambeam2/macro_bb.madx";                  ! macros for beam-beam
+    call,file="bbtoolkit/macro_bb.madx";                  ! macros for beam-beam
   };
 
 ! %% Define the main BB parameters

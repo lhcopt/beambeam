@@ -10,7 +10,7 @@ print(sys.executable)
 import os
 # please change it conveniently
 
-os.chdir('/afs/cern.ch/work/s/sterbini/beambeam_macros/examples')
+# os.chdir('/afs/cern.ch/work/s/sterbini/beambeam_macros/examples')
 print(os.getcwd())
 # %% Unmask the mask
 beam = 1
@@ -40,12 +40,12 @@ with open(fname_mask.split('.mask')[0]+'_unmask.mask', 'w') as fid:
 # %% split the mask
 # I am assuming that the start of the file is '! %%'
 assert(mask_content[0:4]=="! %%")
-aux=mask_content.split("! %%") 
+aux=mask_content.split("! %%")
 title=[]
 body=[]
 for i in aux:
-    title.append(i.split('\n')[0])   
-    body.append("".join([a+'\n' for a in i.split('\n')[1:]])) 
+    title.append(i.split('\n')[0])
+    body.append("".join([a+'\n' for a in i.split('\n')[1:]]))
 # I remove the first (empty line, see assertion above)
 title=title[1:]
 body=body[1:]
@@ -61,12 +61,12 @@ import time
 myGlobals=[]
 mySmallDF=myDF
 myString=''
-for i in mySmallDF.iterrows():   
-    print(i[0]) 
+for block in mySmallDF.iterrows():
+    print(block[0])
     start_time = time.time()
-    myString=myString+ '! %%' +i[0]+ '\n' + i[1]['Code string'][0:-1]
+    myString=myString+ '! %%' +block[0]+ '\n' + block[1]['Code string'][0:-1]
     with madx.batch():
-        madx.input('! %%' +i[0]+ '\n' + i[1]['Code string'][0:-1])
+        madx.input('! %%' +block[0]+ '\n' + block[1]['Code string'][0:-1])
     execution_time_s=time.time()-start_time
     myDict={}
     myDict=dict(madx.globals)
