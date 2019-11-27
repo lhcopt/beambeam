@@ -1,0 +1,29 @@
+rm bbtoolkit 
+rm slhc
+rm twiss*
+rm wise
+rm db5        
+rm *unmask.mask  
+rm -r temp    
+rm bb_lenses.dat 
+rm fidel
+rm lhc
+rm last_twiss.1.gz
+rm fc.*
+rm inverse.mask
+rm last_twiss.%SEEDRAN.gz
+
+rm reference/bbtoolkit 
+rm reference/slhc
+rm reference/twiss*
+rm reference/wise
+rm reference/db5        
+rm reference/*unmask.mask  
+rm reference/-r temp    
+rm reference/bb_lenses.dat 
+rm reference/fidel
+rm reference/lhc
+rm reference/last_twiss.1.gz
+rm reference/fc.*
+rm reference/inverse.mask
+rm reference/last_twiss.%SEEDRAN.gz
