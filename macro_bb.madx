@@ -35,7 +35,7 @@ DEFINE_BB_PARAM : macro = {
   value,nho_IR1,nho_IR2,nho_IR5,nho_IR8;
   assign,echo=terminal ;
   system,"awk  '{print $3}'  temp/sliceho.res >  temp/sliceho.input";
-  system,"/afs/cern.ch/eng/lhc/optics/beambeam_macros/headonslice";
+  system,"beambeam_macros/headonslice";
 
   call,file="temp/sliceho.madx";
 
@@ -818,16 +818,16 @@ MAKEFOOTPRINT(BIM) : macro = {
   !*/
 };
 
-PLOTFOOTPRINT(BIM,qxmin,qxmax,qymin,qymax) : macro = {
-!!! plot tune footprint
-  use,sequence=lhcBIM;
-  delete,table=foottable;
-  create,table=foottable,column=dQ1,dQ2;
-  system,"slhc/beambeam/fillfoottable";
-  call,file="temp/fillfoottable.madx";
-  plot,style=100,noversion=true,nolegend=true,title=Footprint-BIM,table=foottable,
-      colour=2,haxis=dq1,vaxis=dQ2,hmin=qxmin,hmax=qxmax,vmin=qymin,vmax=qymax;
-};
+! PLOTFOOTPRINT(BIM,qxmin,qxmax,qymin,qymax) : macro = {
+! !!! plot tune footprint
+!   use,sequence=lhcBIM;
+!   delete,table=foottable;
+!   create,table=foottable,column=dQ1,dQ2;
+!   system,"slhc/beambeam/fillfoottable";
+!   call,file="temp/fillfoottable.madx";
+!   plot,style=100,noversion=true,nolegend=true,title=Footprint-BIM,table=foottable,
+!       colour=2,haxis=dq1,vaxis=dQ2,hmin=qxmin,hmax=qxmax,vmin=qymin,vmax=qymax;
+! };
 
 LEVEL_OFFSET_COMMON(TARGET_LUMI,nIP): macro = {
 !!! Offset leveling
