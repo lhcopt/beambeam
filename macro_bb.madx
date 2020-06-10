@@ -229,20 +229,12 @@ CALCULATE_BB_LENS: macro = {
   use,sequence=lhcb2;twiss,file="temp/twiss.tfs";
   readmytable,file="temp/twiss.tfs",table=twissb2;
 
-  if (abs(fraction_crab)>1e-10){
-     !! Calculate twiss table with crab
-     on0_x1=on_x1; on0_sep1=on_sep1; on0_x2=on_x2; on0_sep2=on_sep2; on0_alice=on_alice;
-     on0_x5=on_x5; on0_sep5=on_sep5; on0_x8=on_x8; on0_sep8=on_sep8; on0_lhcb =on_lhcb;
-     on0_a1=on_a1; on0_o1=on_o1;on0_oe1=on_oe1;on0_a5=on_a5;on0_o5=on_o5;on0_oe5=on_oe5;
-     on0_a2=on_a2; on0_o2=on_o2;on0_oe2=on_oe2;on0_a8=on_a8;on0_o8=on_o8;on0_oe8=on_oe8;
-     on0_oh1=on_oh1;on0_oh2=on_oh2;on0_oh5=on_oh5;on0_oh8=on_oh8;
-     on0_ov1=on_ov1;on0_ov2=on_ov2;on0_ov5=on_ov5;on0_ov8=on_ov8;
-     on_x1:=0; on_sep1:=0; on_x2:=0; on_sep2:=0; on_alice:=0;
-     on_x5:=0; on_sep5:=0; on_x8:=0; on_sep8:=0; on_lhcb :=0;
-     on_a1=0;on0_o1=0;on_oe1=0;on_a5=0;on_o5=0;on_oe5=0;
-     on_a2=0;on0_o2=0;on_oe2=0;on_a8=0;on_o8=0;on_oe8=0;
-     on_oh1=0;on_oh2=0;on_oh5=0;on_oh8=0;
-     on_ov1=0;on_ov2=0;on_ov5=0;on_ov8=0;
+  if (skip_strong_beam_crabbing>0){
+  print,text="Strong beam crabbing is skipped";
+  }
+  else{
+     !! Calculate twiss table with crab only
+     exec, crossing_disable;
      
      use,sequence=lhcb1;twiss;corbitmax1=table(summ,xcomax)^2+table(summ,ycomax)^2;
      if(corbitmax1>1.d-15) {print,text="crossing bump not off for b1 when calculating CC effect in bbmacro"; stop;};
@@ -257,12 +249,7 @@ CALCULATE_BB_LENS: macro = {
      use,sequence=lhcb2;twiss,file="temp/twiss.tfs";
      readmytable,file="temp/twiss.tfs",table=twissb2_crab;
      
-     on_x1=on0_x1; on_sep1=on0_sep1;on_x2=on0_x2; on_sep2=on0_sep2; on_alice=on0_alice;
-     on_x5=on0_x5; on_sep5=on0_sep5;on_x8=on0_x8; on_sep8=on0_sep8; on_lhcb =on0_lhcb;
-     on_a1=on0_a1; on_o1=on0_o1;on_oe1=on0_oe1;on_a5=on0_a5;on_o5=on0_o5;on_oe5=on0_oe5;
-     on_a2=on0_a2; on_o2=on0_o2;on_oe2=on0_oe2;on_a8=on0_a8;on_o8=on0_o8;on_oe8=on0_oe8;
-     on_oh1=on0_oh1;on_oh2=on0_oh2;on_oh5=on0_oh5;on_oh8=on0_oh8;
-     on_ov1=on0_ov1;on_ov2=on0_ov2;on_ov5=on0_ov5;on_ov8=on0_ov8;
+     exec, crossing_restore;
 
      on_crab1:=0;on_crab5:=0;z_crab=0;
   }
