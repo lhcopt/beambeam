@@ -241,7 +241,7 @@ CALCULATE_BB_LENS: macro = {
      use,sequence=lhcb2;twiss;corbitmax2=table(summ,xcomax)^2+table(summ,ycomax)^2;
      if(corbitmax2>1.d-15) {print,text="crossing bump not off for b2 when calculating CC effect in bbmacro"; stop;};
      
-     on_crab1:=fraction_crab*on0_x1;on_crab5:=fraction_crab*on0_x5;z_crab=0.075;
+     z_crab=0.075;
      select,flag=twiss,clear;
      select,flag=twiss,class=bbmarker,column=name,s,x,y,betx,bety,sig11,sig12,sig22,sig33,sig34,sig44,sig13,sig14,sig23,sig24;
      use,sequence=lhcb1;twiss,file="temp/twiss.tfs";
@@ -251,7 +251,6 @@ CALCULATE_BB_LENS: macro = {
      
      exec, crossing_restore;
 
-     on_crab1:=0;on_crab5:=0;z_crab=0;
   }
   !! Define head on BB lens for beam1/2
 
