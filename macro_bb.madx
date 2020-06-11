@@ -241,7 +241,7 @@ CALCULATE_BB_LENS: macro = {
      use,sequence=lhcb2;twiss;corbitmax2=table(summ,xcomax)^2+table(summ,ycomax)^2;
      if(corbitmax2>1.d-15) {print,text="crossing bump not off for b2 when calculating CC effect in bbmacro"; stop;};
      
-     z_crab=0.075;
+     z_crab=0.075; ! Coordinate of particle to twiss (changes crab corrector)
      select,flag=twiss,clear;
      select,flag=twiss,class=bbmarker,column=name,s,x,y,betx,bety,sig11,sig12,sig22,sig33,sig34,sig44,sig13,sig14,sig23,sig24;
      use,sequence=lhcb1;twiss,file="temp/twiss.tfs";
@@ -250,6 +250,7 @@ CALCULATE_BB_LENS: macro = {
      readmytable,file="temp/twiss.tfs",table=twissb2_crab;
      
      exec, crossing_restore;
+     z_crab=0; ! Back to synchronous particle
 
   }
   !! Define head on BB lens for beam1/2
@@ -289,16 +290,16 @@ DEFINE_BB_LENS(label,NIR,nn,flag,bbcomm) : macro = {
   posx_labelNIRb1_nn  = table(twissb2,bbmk_labelNIRb2_nn,x)+x_su_labelNIR_nn;
   posy_labelNIRb1_nn  = table(twissb2,bbmk_labelNIRb2_nn,y);
 
-  if (abs(fraction_crab)>1e-10){
+  if (skip_strong_beam_crabbing>0){
+     posx_labelNIRb1_crab_nn  = 0.;
+     posy_labelNIRb1_crab_nn  = 0.;
+  }
+  else {
      s_labelNIRb1_nn = table(twissb1_crab,bbmk_labelNIRb1_nn,s)-table(twissb1_crab,bbmk_hoNIRb1_0,s);
      sin_labelNIRb2_nn=sin(2*s_labelNIRb1_nn*twopi*HRF400/LHCLENGTH)/anorm_crab;
      if (abs(s_labelNIRb1_nn)> b_h_dist*0.5) {sin_labelNIRb2_nn=0;};
      posx_labelNIRb1_crab_nn  = table(twissb2_crab,bbmk_labelNIRb2_nn,x)*sin_labelNIRb2_nn;
      posy_labelNIRb1_crab_nn  = table(twissb2_crab,bbmk_labelNIRb2_nn,y)*sin_labelNIRb2_nn;
-  }
-  else{
-     posx_labelNIRb1_crab_nn  = 0.;
-     posy_labelNIRb1_crab_nn  = 0.;
   }
 
   sigx_labelNIRb2_nn  = sqrt(beamx*table(twissb1,bbmk_labelNIRb1_nn,betx));
@@ -306,16 +307,16 @@ DEFINE_BB_LENS(label,NIR,nn,flag,bbcomm) : macro = {
   posx_labelNIRb2_nn  = table(twissb1,bbmk_labelNIRb1_nn,x)-x_su_labelNIR_nn;
   posy_labelNIRb2_nn  = table(twissb1,bbmk_labelNIRb1_nn,y);
 
-  if (abs(fraction_crab)>1e-10){
+  if (skip_strong_beam_crabbing>0){
+     posx_labelNIRb2_crab_nn  = 0.;
+     posy_labelNIRb2_crab_nn  = 0.;
+  }
+  else{
      s_labelNIRb2_nn = table(twissb2_crab,bbmk_labelNIRb2_nn,s)-table(twissb2_crab,bbmk_hoNIRb2_0,s);
      sin_labelNIRb1_nn=sin(2*s_labelNIRb2_nn*twopi*HRF400/LHCLENGTH)/anorm_crab;
      if (abs(s_labelNIRb2_nn)> b_h_dist*0.5) {sin_labelNIRb1_nn=0;};
      posx_labelNIRb2_crab_nn  = table(twissb1_crab,bbmk_labelNIRb1_nn,x)*sin_labelNIRb1_nn;
      posy_labelNIRb2_crab_nn  = table(twissb1_crab,bbmk_labelNIRb1_nn,y)*sin_labelNIRb1_nn;
-  }
-  else{
-     posx_labelNIRb2_crab_nn  = 0.;
-     posy_labelNIRb2_crab_nn  = 0.;
   }
 
   bb_labelNIRb1_nn : beambeam, sigx   = sigx_labelNIRb1_nn, sigy    = sigy_labelNIRb1_nn,
